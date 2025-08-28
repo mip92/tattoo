@@ -12,8 +12,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Устанавливаем зависимости с ограничениями - этот слой будет кешироваться
-RUN npm ci --production=false --no-audit --no-fund --prefer-offline
+# Устанавливаем зависимости с возможностью продолжения - этот слой будет кешироваться
+RUN npm ci --production=false --no-audit --no-fund --prefer-offline --no-optional
 
 # Копируем исходный код ПОСЛЕ установки зависимостей
 COPY . .
@@ -35,8 +35,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Устанавливаем только продакшн зависимости - этот слой тоже будет кешироваться
-RUN npm ci --only=production --no-audit --no-fund --prefer-offline
+# Устанавливаем продакшн зависимости с возможностью продолжения
+RUN npm ci --only=production --no-audit --no-fund --prefer-offline --no-optional
 
 # Копируем собранное приложение
 COPY --from=builder /app/dist ./dist

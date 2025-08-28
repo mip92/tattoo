@@ -6,7 +6,7 @@ echo "🚀 Запускаю безопасную сборку для слабо�
 echo "📦 Останавливаю контейнеры..."
 docker-compose -f docker-compose.prod.yml down
 
-# Очищаем неиспользуемые образы
+# Очищаем только неиспользуемые образы (НЕ кеш сборки)
 echo "🧹 Очищаю неиспользуемые образы..."
 docker system prune -f
 
@@ -19,7 +19,7 @@ docker run --rm \
   -v $(pwd)/backend:/app \
   -w /app \
   node:20-alpine \
-  sh -c "npm ci && npm run build"
+  sh -c "npm ci --prefer-offline --no-optional && npm run build"
 
 # Теперь собираем образ с уже готовым build
 docker build -t tattoo-server-backend ./backend
