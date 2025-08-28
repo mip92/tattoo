@@ -1,0 +1,8 @@
+query GetBrand($id: Int!) {
+  brand(id: $id) {
+    id
+    name
+    createdAt
+    updatedAt
+  }
+}

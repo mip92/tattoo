@@ -1,0 +1,13 @@
+query GetBoxTypes($query: BoxTypesQueryDto!) {
+  boxTypesWithPagination(query: $query) {
+    rows {
+      id
+      name
+      quantity
+      type
+      createdAt
+      updatedAt
+    }
+    total
+  }
+}

@@ -1,0 +1,10 @@
+query GetBoxType($id: Int!) {
+  boxType(id: $id) {
+    id
+    name
+    quantity
+    type
+    createdAt
+    updatedAt
+  }
+}

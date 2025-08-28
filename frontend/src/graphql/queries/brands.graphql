@@ -1,0 +1,11 @@
+query GetBrands($query: BrandsQueryDto!) {
+  brandsWithPagination(query: $query) {
+    rows {
+      id
+      name
+      createdAt
+      updatedAt
+    }
+    total
+  }
+}

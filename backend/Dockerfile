@@ -1,21 +1,15 @@
-FROM node:18-alpine
+FROM node:18-alpine3.17
+
+RUN apk add --update --no-cache openssl1.1-compat
 
 WORKDIR /app
 
-# Копируем package.json
 COPY package*.json ./
+COPY prisma ./prisma/
 
-# Устанавливаем зависимости
-RUN npm ci --only=production
+RUN npm ci
 
-# Копируем исходный код
 COPY . .
 
-# Собираем приложение
+RUN npx prisma generate
 RUN npm run build
-
-# Открываем порт
-EXPOSE 3000
-
-# Запускаем приложение
-CMD ["npm", "run", "start:prod"]
