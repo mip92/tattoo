@@ -45,7 +45,7 @@ services:
 
   # Next.js Frontend (без Docker)
   frontend:
-    image: node:20.11-alpine
+    image: node:20-alpine
     container_name: tattoo-frontend-prod
     restart: unless-stopped
     working_dir: /app
