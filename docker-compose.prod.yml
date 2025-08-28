@@ -19,14 +19,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 200M
-          cpus: '0.3'
-        reservations:
-          memory: 100M
-          cpus: '0.1'
 
   # NestJS Backend API
   backend:
@@ -44,20 +36,13 @@ services:
       JWT_ACCESS_TOKEN_EXPIRES_IN: ${JWT_ACCESS_TOKEN_EXPIRES_IN:-15m}
       JWT_REFRESH_TOKEN_EXPIRES_IN: ${JWT_REFRESH_TOKEN_EXPIRES_IN:-7d}
       PORT: 3000
+      NODE_OPTIONS: "--max-old-space-size=256"
     depends_on:
       database:
         condition: service_healthy
     networks:
       - tattoo-network
     command: npm run start:prod
-    deploy:
-      resources:
-        limits:
-          memory: 300M
-          cpus: '0.5'
-        reservations:
-          memory: 200M
-          cpus: '0.25'
 
   # Next.js Frontend (без Docker)
   frontend:
@@ -70,19 +55,12 @@ services:
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://backend:3000}
+      NODE_OPTIONS: "--max-old-space-size=128"
     depends_on:
       - backend
     networks:
       - tattoo-network
     command: sh -c "npm install && npm run start"
-    deploy:
-      resources:
-        limits:
-          memory: 200M
-          cpus: '0.3'
-        reservations:
-          memory: 100M
-          cpus: '0.1'
 
   # Nginx Reverse Proxy
   nginx:
