@@ -19,6 +19,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+          cpus: '0.3'
+        reservations:
+          memory: 100M
+          cpus: '0.1'
 
   # NestJS Backend API
   backend:
@@ -42,6 +50,14 @@ services:
     networks:
       - tattoo-network
     command: npm run start:prod
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+          cpus: '0.5'
+        reservations:
+          memory: 200M
+          cpus: '0.25'
 
   # Next.js Frontend (без Docker)
   frontend:
@@ -59,6 +75,14 @@ services:
     networks:
       - tattoo-network
     command: sh -c "npm install && npm run start"
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+          cpus: '0.3'
+        reservations:
+          memory: 100M
+          cpus: '0.1'
 
   # Nginx Reverse Proxy
   nginx:
