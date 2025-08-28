@@ -25,6 +25,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        NODE_VERSION: 20
     container_name: tattoo-backend-prod
     restart: unless-stopped
     environment:
@@ -43,7 +45,7 @@ services:
 
   # Next.js Frontend (без Docker)
   frontend:
-    image: node:18-alpine
+    image: node:20-alpine
     container_name: tattoo-frontend-prod
     restart: unless-stopped
     working_dir: /app
