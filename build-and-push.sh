@@ -22,7 +22,7 @@ fi
 
     # Собираем образ локально для multi-arch (без ограничений ресурсов)
     echo "🔨 Собираю Docker образ локально для multi-arch..."
-    docker buildx create --use --name multiarch-builder || true
+    docker buildx create --use --name multiarch-builder 2>/dev/null || docker buildx use multiarch-builder 2>/dev/null || true
     docker buildx build --platform linux/amd64,linux/arm64 -t ${USERNAME}/${IMAGE_NAME}:${TAG} --push ./backend
 
 if [ $? -ne 0 ]; then
