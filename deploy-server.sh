@@ -1,10 +1,16 @@
 #!/bin/bash
 
-# Конфигурация
-REGISTRY="docker.io"
-USERNAME="mip92"
-IMAGE_NAME="tattoo-server"
-TAG="latest"
+# Загружаем переменные окружения
+if [ -f "docker-hub.env" ]; then
+    source docker-hub.env
+else
+    echo "⚠️  Файл docker-hub.env не найден. Используем значения по умолчанию."
+    # Конфигурация по умолчанию
+    REGISTRY="docker.io"
+    USERNAME="mip92"
+    IMAGE_NAME="tattoo-server"
+    TAG="latest"
+fi
 
 echo "🚀 Деплою на сервер (только pull и запуск)..."
 

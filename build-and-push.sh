@@ -1,10 +1,16 @@
 #!/bin/bash
 
-# Конфигурация
-REGISTRY="docker.io"
-USERNAME="mip92"
-IMAGE_NAME="tattoo-server"
-TAG="latest"
+# Загружаем переменные окружения
+if [ -f "docker-hub.env" ]; then
+    source docker-hub.env
+else
+    echo "⚠️  Файл docker-hub.env не найден. Используем значения по умолчанию."
+    # Конфигурация по умолчанию
+    REGISTRY="docker.io"
+    USERNAME="mip92"
+    IMAGE_NAME="tattoo-server"
+    TAG="latest"
+fi
 
 echo "🚀 Собираю Docker образ локально и пушу в registry..."
 
@@ -26,14 +32,15 @@ fi
 
 echo "✅ Образ собран успешно!"
 
-    # Логинимся в registry (если нужно)
+    # Логинимся в registry автоматически
     echo "🔐 Проверяю авторизацию в registry..."
     if ! docker info | grep -q "Username"; then
-        echo "⚠️  Не авторизован в Docker Hub. Выполните:"
-        echo "   docker login"
-        read -p "Продолжить без авторизации? (y/N): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "⚠️  Не авторизован в Docker Hub. Выполняю автоматический логин..."
+        if [ -f "docker-login.sh" ]; then
+            ./docker-login.sh
+        else
+            echo "❌ Скрипт docker-login.sh не найден!"
+            echo "Выполните: docker login"
             exit 1
         fi
     fi
