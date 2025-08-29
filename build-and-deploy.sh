@@ -57,19 +57,23 @@ scp -i ${SSH_KEY_PATH} deploy-server.sh ${SERVER_USER}@${SERVER_IP}:/root/tattoo
 # Запускаем деплой backend на сервере
 ssh -i ${SSH_KEY_PATH} ${SERVER_USER}@${SERVER_IP} << 'EOF'
     cd /root/tattoo-app
-    chmod +x deploy-server.sh
     
-    # Останавливаем все контейнеры
-    docker-compose -f docker-compose.prod.yml down 2>/dev/null || true
+    # Останавливаем ВСЕ контейнеры и удаляем volumes
+    echo "🛑 Останавливаю все контейнеры..."
+    docker-compose -f docker-compose.prod.yml down -v
+    
+    # Очищаем неиспользуемые ресурсы
+    echo "🧹 Очищаю неиспользуемые ресурсы..."
+    docker system prune -f
     
     # Запускаем только backend
-    echo "Запускаю только backend..."
+    echo "🚀 Запускаю только backend..."
     docker-compose -f docker-compose.prod.yml up -d database backend
     
-    echo "Жду, пока backend будет готов..."
+    echo "⏳ Жду, пока backend будет готов..."
     # Ждем, пока backend будет готов (проверяем health endpoint)
     for i in {1..30}; do
-        if curl -f http://localhost:3000/health >/dev/null 2>&1; then
+        if docker exec tattoo-backend-prod wget --no-verbose --tries=1 --spider http://localhost:3000/health >/dev/null 2>&1; then
             echo "✅ Backend готов к работе!"
             break
         fi
@@ -114,15 +118,19 @@ ssh -i ${SSH_KEY_PATH} ${SERVER_USER}@${SERVER_IP} << 'EOF'
     cd /root/tattoo-app
     
     # Тянем frontend образ
-    echo "Загружаю frontend образ..."
+    echo "📥 Загружаю frontend образ..."
     docker pull ${REGISTRY}/${USERNAME}/tattoo-client:${TAG}
     
-    # Запускаем frontend
-    echo "Запускаю frontend..."
+    # Запускаем frontend и nginx
+    echo "🚀 Запускаю frontend и nginx..."
     docker-compose -f docker-compose.prod.yml up -d frontend nginx
     
-    echo "Проверяю статус всех сервисов..."
+    echo "📊 Проверяю статус всех сервисов..."
     docker-compose -f docker-compose.prod.yml ps
+    
+    echo "🌐 Проверяю доступность сервисов..."
+    echo "   Backend health: $(curl -s http://localhost:3000/health || echo 'недоступен')"
+    echo "   Frontend: $(curl -s http://localhost:80 | head -1 || echo 'недоступен')"
 EOF
 
 if [ $? -ne 0 ]; then
