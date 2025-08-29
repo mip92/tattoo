@@ -1,6 +1,10 @@
 # Multi-stage build для Next.js frontend
 FROM node:22-alpine AS builder
 
+# Принимаем build argument для API URL
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 # Устанавливаем зависимости для сборки
 RUN apk add --update --no-cache openssl
 
@@ -26,6 +30,10 @@ RUN npm run build
 
 # Production stage
 FROM node:22-alpine AS production
+
+# Принимаем build argument для API URL
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 # Устанавливаем только необходимые пакеты
 RUN apk add --update --no-cache openssl

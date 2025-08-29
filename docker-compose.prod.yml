@@ -39,6 +39,12 @@ services:
     networks:
       - tattoo-network
     command: npm run start:prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Next.js Frontend
   frontend:
@@ -50,7 +56,8 @@ services:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://backend:3000}
       NODE_OPTIONS: "--max-old-space-size=128"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - tattoo-network
 
