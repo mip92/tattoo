@@ -28,25 +28,12 @@ else
     echo "✅ Frontend directory already exists"
 fi
 
-# Создаем .env файл если его нет
+# Проверяем .env файл
 if [ ! -f ".env" ]; then
-    echo "🔐 Creating .env file..."
-    cat > .env << EOF
-# Database Configuration
-POSTGRES_USER=tattoo_user
-POSTGRES_PASSWORD=$(openssl rand -base64 32)
-POSTGRES_DB=tattoo_db
-DATABASE_URL=postgresql://tattoo_user:\${POSTGRES_PASSWORD}@database:5432/tattoo_db
-
-# JWT Configuration
-JWT_SECRET=$(openssl rand -base64 64)
-JWT_ACCESS_TOKEN_EXPIRES_IN=15m
-JWT_REFRESH_TOKEN_EXPIRES_IN=7d
-
-# Frontend Configuration
-NEXT_PUBLIC_API_URL=https://your-domain.com/graphql
-EOF
-    echo "✅ .env file created"
+    echo "⚠️  .env file not found! Please create it manually with proper configuration"
+    echo "   Required variables: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, DATABASE_URL, JWT_SECRET"
+else
+    echo "✅ .env file exists"
 fi
 
 echo ""

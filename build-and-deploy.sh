@@ -97,7 +97,7 @@ echo "Использую переменную окружения для API URL 
 # Собираем frontend образ с переменной окружения для API
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  --build-arg NEXT_PUBLIC_API_URL=http://backend:3000 \
+  --build-arg NEXT_PUBLIC_API_URL=http://164.92.133.111/graphql \
   -t ${USERNAME}/tattoo-client:${TAG} \
   --push ./frontend
 
