@@ -14,9 +14,10 @@ if [ ! -f "backend/Dockerfile" ]; then
     exit 1
 fi
 
-# Собираем образ локально (без ограничений ресурсов)
-echo "🔨 Собираю Docker образ локально..."
-docker build -t ${USERNAME}/${IMAGE_NAME}:${TAG} ./backend
+    # Собираем образ локально для multi-arch (без ограничений ресурсов)
+    echo "🔨 Собираю Docker образ локально для multi-arch..."
+    docker buildx create --use --name multiarch-builder || true
+    docker buildx build --platform linux/amd64,linux/arm64 -t ${USERNAME}/${IMAGE_NAME}:${TAG} --push ./backend
 
 if [ $? -ne 0 ]; then
     echo "❌ Ошибка сборки образа!"
@@ -37,16 +38,7 @@ echo "✅ Образ собран успешно!"
         fi
     fi
 
-# Пушем образ в registry
-echo "📤 Пушу образ в registry..."
-docker push ${REGISTRY}/${USERNAME}/${IMAGE_NAME}:${TAG}
-
-if [ $? -ne 0 ]; then
-    echo "❌ Ошибка пуша образа!"
-    exit 1
-fi
-
-    echo "✅ Образ успешно запушен в Docker Hub!"
+    echo "✅ Образ успешно собран и запушен в Docker Hub!"
     echo "🐳 Теперь на сервере выполните:"
-          echo "   docker pull ${USERNAME}/${IMAGE_NAME}:${TAG}"
-      echo "   docker-compose -f docker-compose.prod.yml up -d"
+    echo "   docker pull ${USERNAME}/${IMAGE_NAME}:${TAG}"
+    echo "   docker-compose -f docker-compose.prod.yml up -d"
