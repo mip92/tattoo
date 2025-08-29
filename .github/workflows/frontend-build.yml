@@ -1,0 +1,80 @@
+name: Build and Push Frontend Docker Image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "package.json"
+      - "next.config.*"
+      - "Dockerfile"
+      - ".github/workflows/frontend-build.yml"
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: mip92/tattoo-client
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check GraphQL server availability
+        run: |
+          echo "Checking GraphQL server availability..."
+          curl -f ${{ secrets.GRAPHQL_SERVER_URL }} || echo "Server not available, using fallback"
+
+      - name: Generate GraphQL types
+        run: |
+          export NEXT_PUBLIC_SERVER_URL=${{ secrets.GRAPHQL_SERVER_URL }}
+          npm run codegen
+
+      - name: Build Next.js application
+        run: npm run build:docker
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Trigger deployment in infrastructure repo
+        run: |
+          echo "🚀 Frontend image built and pushed successfully!"
+          echo "📦 Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          echo "🔗 Docker Hub: https://hub.docker.com/r/${{ env.IMAGE_NAME }}"
+          echo "📝 SHA: ${{ github.sha }}"
+          echo ""
+          echo "💡 The infrastructure repository (tattoo-nginx) will automatically detect this update"
+          echo "   and deploy it to the production server within 6 hours."
+          echo ""
+          echo "🔄 To deploy immediately, go to tattoo-nginx repository and run:"
+          echo "   Actions → Deploy Frontend → Run workflow"

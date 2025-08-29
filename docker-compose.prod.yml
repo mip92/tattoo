@@ -1,25 +1,6 @@
 version: "3.8"
 
 services:
-  # База данных PostgreSQL
-  database:
-    image: postgres:15-alpine
-    container_name: tattoo-database-prod
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - postgres_data_prod:/var/lib/postgresql/data
-    networks:
-      - tattoo-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # NestJS Backend API
   backend:
     image: mip92/tattoo-server:latest
@@ -33,9 +14,6 @@ services:
       JWT_REFRESH_TOKEN_EXPIRES_IN: ${JWT_REFRESH_TOKEN_EXPIRES_IN:-7d}
       PORT: 3000
       NODE_OPTIONS: "--max-old-space-size=256"
-    depends_on:
-      database:
-        condition: service_healthy
     networks:
       - tattoo-network
     command: npm run start:prod
@@ -85,9 +63,6 @@ services:
       - frontend
     networks:
       - tattoo-network
-
-volumes:
-  postgres_data_prod:
 
 networks:
   tattoo-network:
