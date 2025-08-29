@@ -22,11 +22,7 @@ services:
 
   # NestJS Backend API
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      args:
-        NODE_VERSION: 20
+    image: mip92/tattoo-server:latest
     container_name: tattoo-backend-prod
     restart: unless-stopped
     environment:
