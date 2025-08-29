@@ -1,37 +1,24 @@
 name: Deploy Frontend
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "*/10 * * * *" # Каждые 10 минут проверяем обновления
+  workflow_dispatch: # Ручной запуск
+  repository_dispatch: # Событие от tclient репозитория
+    types: [deploy-frontend]
 
 jobs:
-  check-and-deploy:
+  deploy-frontend:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check for frontend image updates
-        id: check-image
+      - name: Get frontend image info
+        id: image-info
         run: |
-          # Получаем текущий digest образа на сервере
-          CURRENT_DIGEST=$(ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "docker images --digests --format '{{.Digest}}' mip92/tattoo-client:latest | head -1")
+          # Получаем информацию о новом образе из payload
+          FRONTEND_IMAGE="${{ github.event.client_payload.frontend_image }}"
+          echo "frontend_image=$FRONTEND_IMAGE" >> $GITHUB_OUTPUT
+          echo "🚀 Deploying frontend image: $FRONTEND_IMAGE"
 
-          # Получаем digest из Docker Hub
-          HUB_DIGEST=$(docker manifest inspect mip92/tattoo-client:latest | jq -r '.manifests[] | select(.platform.architecture == "amd64") | .digest')
-
-          echo "Current digest: $CURRENT_DIGEST"
-          echo "Hub digest: $HUB_DIGEST"
-
-          if [ "$CURRENT_DIGEST" != "$HUB_DIGEST" ]; then
-            echo "::set-output name=needs_update::true"
-            echo "🔄 Frontend image needs update"
-          else
-            echo "::set-output name=needs_update::false"
-            echo "✅ Frontend image is up to date"
-          fi
-
-      - name: Deploy frontend if updated
-        if: steps.check-image.outputs.needs_update == 'true'
+      - name: Deploy to production server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -65,7 +52,6 @@ jobs:
             echo "✅ Frontend deployment completed!"
 
       - name: Health check frontend
-        if: steps.check-image.outputs.needs_update == 'true'
         run: |
           echo "🔍 Testing frontend health..."
           sleep 10

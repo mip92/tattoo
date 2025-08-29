@@ -1,37 +1,24 @@
 name: Deploy Backend
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "*/10 * * * *" # Каждые 10 минут проверяем обновления
+  workflow_dispatch: # Ручной запуск
+  repository_dispatch: # Событие от tserver репозитория
+    types: [deploy-backend]
 
 jobs:
-  check-and-deploy:
+  deploy-backend:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check for backend image updates
-        id: check-image
+      - name: Get backend image info
+        id: image-info
         run: |
-          # Получаем текущий digest образа на сервере
-          CURRENT_DIGEST=$(ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "docker images --digests --format '{{.Digest}}' mip92/tattoo-server:latest | head -1")
+          # Получаем информацию о новом образе из payload
+          BACKEND_IMAGE="${{ github.event.client_payload.backend_image }}"
+          echo "backend_image=$BACKEND_IMAGE" >> $GITHUB_OUTPUT
+          echo "🚀 Deploying backend image: $BACKEND_IMAGE"
 
-          # Получаем digest из Docker Hub
-          HUB_DIGEST=$(docker manifest inspect mip92/tattoo-server:latest | jq -r '.manifests[] | select(.platform.architecture == "amd64") | .digest')
-
-          echo "Current digest: $CURRENT_DIGEST"
-          echo "Hub digest: $HUB_DIGEST"
-
-          if [ "$CURRENT_DIGEST" != "$HUB_DIGEST" ]; then
-            echo "::set-output name=needs_update::true"
-            echo "🔄 Backend image needs update"
-          else
-            echo "::set-output name=needs_update::false"
-            echo "✅ Backend image is up to date"
-          fi
-
-      - name: Deploy backend if updated
-        if: steps.check-image.outputs.needs_update == 'true'
+      - name: Deploy to production server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -69,7 +56,6 @@ jobs:
             echo "✅ Backend deployment completed!"
 
       - name: Health check backend
-        if: steps.check-image.outputs.needs_update == 'true'
         run: |
           echo "🔍 Testing backend health..."
           sleep 15
