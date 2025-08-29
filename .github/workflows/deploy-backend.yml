@@ -1,0 +1,85 @@
+name: Deploy Backend
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *" # Каждые 10 минут проверяем обновления
+
+jobs:
+  check-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check for backend image updates
+        id: check-image
+        run: |
+          # Получаем текущий digest образа на сервере
+          CURRENT_DIGEST=$(ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "docker images --digests --format '{{.Digest}}' mip92/tattoo-server:latest | head -1")
+
+          # Получаем digest из Docker Hub
+          HUB_DIGEST=$(docker manifest inspect mip92/tattoo-server:latest | jq -r '.manifests[] | select(.platform.architecture == "amd64") | .digest')
+
+          echo "Current digest: $CURRENT_DIGEST"
+          echo "Hub digest: $HUB_DIGEST"
+
+          if [ "$CURRENT_DIGEST" != "$HUB_DIGEST" ]; then
+            echo "::set-output name=needs_update::true"
+            echo "🔄 Backend image needs update"
+          else
+            echo "::set-output name=needs_update::false"
+            echo "✅ Backend image is up to date"
+          fi
+
+      - name: Deploy backend if updated
+        if: steps.check-image.outputs.needs_update == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "🚀 Deploying updated backend..."
+
+            cd /root/tattoo-app
+
+            # Останавливаем backend
+            echo "⏹️ Stopping backend service..."
+            docker-compose -f docker-compose.prod.yml stop backend
+
+            # Удаляем старый образ
+            echo "🗑️ Removing old backend image..."
+            docker rmi mip92/tattoo-server:latest || true
+
+            # Запускаем backend с новым образом
+            echo "🔄 Starting backend with new image..."
+            docker-compose -f docker-compose.prod.yml up -d backend
+
+            # Ждем инициализации
+            echo "⏳ Waiting for backend to initialize..."
+            sleep 30
+
+            # Проверяем статус
+            echo "📊 Checking backend status..."
+            docker ps | grep backend
+
+            # Проверяем health check
+            echo "💚 Checking backend health..."
+            docker-compose -f docker-compose.prod.yml ps | grep backend
+
+            echo "✅ Backend deployment completed!"
+
+      - name: Health check backend
+        if: steps.check-image.outputs.needs_update == 'true'
+        run: |
+          echo "🔍 Testing backend health..."
+          sleep 15
+
+          # Проверяем GraphQL endpoint
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/graphql)
+
+          if [ "$RESPONSE" = "400" ] || [ "$RESPONSE" = "200" ]; then
+            echo "✅ Backend is healthy (HTTP $RESPONSE - CSRF protection working)"
+          else
+            echo "❌ Backend health check failed (HTTP $RESPONSE)"
+            exit 1
+          fi

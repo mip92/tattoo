@@ -1,0 +1,81 @@
+name: Deploy Frontend
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *" # Каждые 10 минут проверяем обновления
+
+jobs:
+  check-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check for frontend image updates
+        id: check-image
+        run: |
+          # Получаем текущий digest образа на сервере
+          CURRENT_DIGEST=$(ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "docker images --digests --format '{{.Digest}}' mip92/tattoo-client:latest | head -1")
+
+          # Получаем digest из Docker Hub
+          HUB_DIGEST=$(docker manifest inspect mip92/tattoo-client:latest | jq -r '.manifests[] | select(.platform.architecture == "amd64") | .digest')
+
+          echo "Current digest: $CURRENT_DIGEST"
+          echo "Hub digest: $HUB_DIGEST"
+
+          if [ "$CURRENT_DIGEST" != "$HUB_DIGEST" ]; then
+            echo "::set-output name=needs_update::true"
+            echo "🔄 Frontend image needs update"
+          else
+            echo "::set-output name=needs_update::false"
+            echo "✅ Frontend image is up to date"
+          fi
+
+      - name: Deploy frontend if updated
+        if: steps.check-image.outputs.needs_update == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "🚀 Deploying updated frontend..."
+
+            cd /root/tattoo-app
+
+            # Останавливаем frontend
+            echo "⏹️ Stopping frontend service..."
+            docker-compose -f docker-compose.prod.yml stop frontend
+
+            # Удаляем старый образ
+            echo "🗑️ Removing old frontend image..."
+            docker rmi mip92/tattoo-client:latest || true
+
+            # Запускаем frontend с новым образом
+            echo "🔄 Starting frontend with new image..."
+            docker-compose -f docker-compose.prod.yml up -d frontend
+
+            # Ждем инициализации
+            echo "⏳ Waiting for frontend to initialize..."
+            sleep 20
+
+            # Проверяем статус
+            echo "📊 Checking frontend status..."
+            docker ps | grep frontend
+
+            echo "✅ Frontend deployment completed!"
+
+      - name: Health check frontend
+        if: steps.check-image.outputs.needs_update == 'true'
+        run: |
+          echo "🔍 Testing frontend health..."
+          sleep 10
+
+          # Проверяем main page
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/)
+
+          if [ "$RESPONSE" = "200" ]; then
+            echo "✅ Frontend is healthy (HTTP $RESPONSE)"
+          else
+            echo "❌ Frontend health check failed (HTTP $RESPONSE)"
+            exit 1
+          fi

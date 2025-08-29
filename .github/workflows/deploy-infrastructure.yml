@@ -1,0 +1,67 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "🚀 Starting infrastructure deployment..."
+
+            # Переходим в директорию приложения
+            cd /root/tattoo-app
+
+            # Останавливаем все сервисы
+            echo "⏹️ Stopping all services..."
+            docker-compose -f docker-compose.prod.yml down
+
+            # Очищаем старые образы
+            echo "🧹 Cleaning old images..."
+            docker image prune -f
+
+            # Запускаем все сервисы заново
+            echo "🔄 Starting all services..."
+            docker-compose -f docker-compose.prod.yml up -d
+
+            # Ждем инициализации
+            echo "⏳ Waiting for services to initialize..."
+            sleep 30
+
+            # Проверяем статус
+            echo "📊 Checking service status..."
+            docker ps
+
+            # Проверяем health checks
+            echo "💚 Checking health status..."
+            docker-compose -f docker-compose.prod.yml ps
+
+            echo "✅ Infrastructure deployment completed!"
+
+      - name: Health check
+        run: |
+          echo "🔍 Performing health checks..."
+          sleep 10
+
+          # Проверяем GraphQL endpoint
+          echo "Testing GraphQL endpoint..."
+          curl -s http://${{ secrets.SERVER_IP }}/graphql | head -1
+
+          # Проверяем main page
+          echo "Testing main page..."
+          curl -s http://${{ secrets.SERVER_IP }}/ | head -1
+
+          echo "✅ Health checks completed!"
