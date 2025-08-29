@@ -52,11 +52,11 @@ echo "🚀 Шаг 3: Деплою backend на сервер..."
 echo "Подключаюсь к серверу ${SERVER_IP}..."
 
 # Копируем скрипт деплоя на сервер
-scp -i ${SSH_KEY_PATH} deploy-server.sh ${SERVER_USER}@${SERVER_IP}:/root/
+scp -i ${SSH_KEY_PATH} deploy-server.sh ${SERVER_USER}@${SERVER_IP}:/root/tattoo-app/
 
 # Запускаем деплой backend на сервере
 ssh -i ${SSH_KEY_PATH} ${SERVER_USER}@${SERVER_IP} << 'EOF'
-    cd /root
+    cd /root/tattoo-app
     chmod +x deploy-server.sh
     
     # Останавливаем все контейнеры
@@ -111,7 +111,7 @@ echo ""
 # Шаг 5: Деплоим frontend на сервер
 echo "🚀 Шаг 5: Деплою frontend на сервер..."
 ssh -i ${SSH_KEY_PATH} ${SERVER_USER}@${SERVER_IP} << 'EOF'
-    cd /root
+    cd /root/tattoo-app
     
     # Тянем frontend образ
     echo "Загружаю frontend образ..."
