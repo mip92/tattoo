@@ -20,10 +20,14 @@ if [ ! -f "backend/Dockerfile" ]; then
     exit 1
 fi
 
-    # Собираем образ локально для multi-arch (без ограничений ресурсов)
-    echo "🔨 Собираю Docker образ локально для multi-arch..."
+    # Собираем backend образ для multi-arch
+    echo "🔨 Собираю backend Docker образ для multi-arch..."
     docker buildx create --use --name multiarch-builder 2>/dev/null || docker buildx use multiarch-builder 2>/dev/null || true
     docker buildx build --platform linux/amd64,linux/arm64 -t ${USERNAME}/${IMAGE_NAME}:${TAG} --push ./backend
+    
+    # Собираем frontend образ для multi-arch
+    echo "🔨 Собираю frontend Docker образ для multi-arch..."
+    docker buildx build --platform linux/amd64,linux/arm64 -t ${USERNAME}/tattoo-client:${TAG} --push ./frontend
 
 if [ $? -ne 0 ]; then
     echo "❌ Ошибка сборки образа!"
@@ -45,7 +49,8 @@ echo "✅ Образ собран успешно!"
         fi
     fi
 
-    echo "✅ Образ успешно собран и запушен в Docker Hub!"
+    echo "✅ Оба образа успешно собраны и запушены в Docker Hub!"
     echo "🐳 Теперь на сервере выполните:"
     echo "   docker pull ${USERNAME}/${IMAGE_NAME}:${TAG}"
+    echo "   docker pull ${USERNAME}/tattoo-client:${TAG}"
     echo "   docker-compose -f docker-compose.prod.yml up -d"

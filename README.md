@@ -90,7 +90,7 @@ docker-compose -f docker-compose.prod.yml ps
 ```bash
 # Docker Hub Configuration
 DOCKER_USERNAME=your_username
-DOCKER_PASSWORD=your_password
+DOCKER_PASSWORD=your_docker_hub_password
 DOCKER_REGISTRY=docker.io
 DOCKER_IMAGE_NAME=tattoo-server
 DOCKER_IMAGE_TAG=latest
@@ -100,6 +100,8 @@ SERVER_IP=164.92.133.111
 SERVER_USER=root
 SSH_KEY_PATH=~/.ssh/id_ed25519
 ```
+
+**Важно:** Используйте **пароль от Docker Hub аккаунта**, а не токен!
 
 ### Быстрое подключение
 ```bash
