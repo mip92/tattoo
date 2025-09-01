@@ -25,6 +25,10 @@ jobs:
             # Переходим в директорию приложения
             cd /root/tattoo-app
 
+            # Получаем последние изменения из git
+            echo "📥 Pulling latest changes from git..."
+            git pull origin main
+
             # Останавливаем все сервисы
             echo "⏹️ Stopping all services..."
             docker-compose -f docker-compose.prod.yml down
