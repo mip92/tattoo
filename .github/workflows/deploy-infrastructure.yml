@@ -47,6 +47,15 @@ jobs:
                 git reset --hard origin/main
                 git clean -fd
             fi
+
+            # Debug: проверяем что переменные передались
+            echo "🔍 DEBUG: Проверяем переменные окружения..."
+            echo "DEBUG: DATABASE_URL=${DATABASE_URL:0:20}..."
+            echo "DEBUG: JWT_SECRET=${JWT_SECRET:0:10}..."
+            echo "DEBUG: JWT_ACCESS_TOKEN_EXPIRES_IN=${JWT_ACCESS_TOKEN_EXPIRES_IN}"
+            echo "DEBUG: JWT_REFRESH_TOKEN_EXPIRES_IN=${JWT_REFRESH_TOKEN_EXPIRES_IN}"
+            echo "DEBUG: NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}"
+
             echo "🔧 Creating .env file from GitHub Secrets..."
             cat > .env << EOF
             DATABASE_URL=$DATABASE_URL
