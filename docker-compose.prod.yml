@@ -8,11 +8,17 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
+      # Database Configuration
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
       DATABASE_URL: ${DATABASE_URL}
+      # Server Configuration
+      PORT: ${SERVER_PORT}
+      # JWT Configuration
       JWT_SECRET: ${JWT_SECRET}
       JWT_ACCESS_TOKEN_EXPIRES_IN: ${JWT_ACCESS_TOKEN_EXPIRES_IN:-15m}
       JWT_REFRESH_TOKEN_EXPIRES_IN: ${JWT_REFRESH_TOKEN_EXPIRES_IN:-7d}
-      PORT: 3000
       NODE_OPTIONS: "--max-old-space-size=256"
     volumes:
       - backend_data:/app/data # Volume для сохранения данных базы

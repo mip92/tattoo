@@ -9,7 +9,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
+      # Database Configuration
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # Server Configuration
+      SERVER_PORT: ${{ secrets.SERVER_PORT }}
+      # JWT Configuration
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       JWT_ACCESS_TOKEN_EXPIRES_IN: ${{ secrets.JWT_ACCESS_TOKEN_EXPIRES_IN }}
       JWT_REFRESH_TOKEN_EXPIRES_IN: ${{ secrets.JWT_REFRESH_TOKEN_EXPIRES_IN }}
@@ -44,6 +51,9 @@ jobs:
 
             # Debug: проверяем что переменные подставились из GitHub Secrets
             echo "🔍 DEBUG: Проверяем переменные из GitHub Secrets..."
+            echo "DEBUG: POSTGRES_USER=${{ secrets.POSTGRES_USER }}"
+            echo "DEBUG: POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}"
+            echo "DEBUG: POSTGRES_DB=${{ secrets.POSTGRES_DB }}"
             echo "DEBUG: DATABASE_URL=${{ secrets.DATABASE_URL }}"
             echo "DEBUG: JWT_SECRET=${{ secrets.JWT_SECRET }}"
             echo "DEBUG: JWT_ACCESS_TOKEN_EXPIRES_IN=${{ secrets.JWT_ACCESS_TOKEN_EXPIRES_IN }}"
@@ -52,7 +62,15 @@ jobs:
 
             echo "🔧 Creating .env file from GitHub Secrets..."
             cat > .env << 'EOF'
+            # Database Configuration
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             DATABASE_URL=${{ secrets.DATABASE_URL }}
+            # Server Configuration
+            NODE_ENV=production
+            SERVER_PORT=${{ secrets.SERVER_PORT }}
+            # JWT Configuration
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_ACCESS_TOKEN_EXPIRES_IN=${{ secrets.JWT_ACCESS_TOKEN_EXPIRES_IN }}
             JWT_REFRESH_TOKEN_EXPIRES_IN=${{ secrets.JWT_REFRESH_TOKEN_EXPIRES_IN }}
