@@ -1,7 +1,29 @@
 version: "3.8"
 
 services:
-  # NestJS Backend API (с базой данных внутри)
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: tattoo-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tattoo-network
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # NestJS Backend API
   backend:
     image: mip92/tattoo-server:latest
     container_name: tattoo-backend-prod
@@ -12,7 +34,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       # Server Configuration
       PORT: ${SERVER_PORT}
       # JWT Configuration
@@ -20,13 +42,15 @@ services:
       JWT_ACCESS_TOKEN_EXPIRES_IN: ${JWT_ACCESS_TOKEN_EXPIRES_IN:-15m}
       JWT_REFRESH_TOKEN_EXPIRES_IN: ${JWT_REFRESH_TOKEN_EXPIRES_IN:-7d}
       NODE_OPTIONS: "--max-old-space-size=256"
-    volumes:
-      - backend_data:/app/data # Volume для сохранения данных базы
+    volumes: []
     networks:
       - tattoo-network
     ports:
       - "3000:3000" # Порт для API
     command: npm run start:prod
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test:
         [
@@ -79,4 +103,4 @@ networks:
     driver: bridge
 
 volumes:
-  backend_data: # Volume для сохранения данных базы внутри backend
+  postgres_data: # Volume для PostgreSQL данных

@@ -98,6 +98,30 @@ tattoo-nginx/
 
 Следуйте инструкции в [GITHUB_SECRETS_SETUP.md](./GITHUB_SECRETS_SETUP.md)
 
+#### Настройка переменных окружения
+
+Создайте файл `.env` на сервере в директории `/root/tattoo-app/` со следующим содержимым:
+
+```bash
+# Database Configuration
+POSTGRES_USER=tattoo_user
+POSTGRES_PASSWORD=tattoo_password_2024
+POSTGRES_DB=tattoo_db
+
+# Server Configuration
+SERVER_PORT=3000
+
+# JWT Configuration
+JWT_SECRET=your_super_secret_jwt_key_2024_change_in_production
+JWT_ACCESS_TOKEN_EXPIRES_IN=15m
+JWT_REFRESH_TOKEN_EXPIRES_IN=7d
+
+# Frontend Configuration
+NEXT_PUBLIC_API_URL=http://backend:3000
+```
+
+**⚠️ Важно**: Измените пароли и JWT_SECRET на уникальные значения для production!
+
 ### Шаг 2: Настройка соседних репозиториев
 
 Следуйте инструкции в [REPOSITORIES_SETUP.md](./REPOSITORIES_SETUP.md)
@@ -183,6 +207,7 @@ ssh root@164.92.133.111 "docker ps"
 
 - [ ] Настроены GitHub Secrets (`SERVER_IP`, `SERVER_USER`, `SSH_PRIVATE_KEY`)
 - [ ] SSH ключ добавлен на сервер
+- [ ] Создан файл `.env` на сервере с переменными окружения
 - [ ] Протестирован первый автоматический деплой
 
 ### В репозитории tclient (frontend):
