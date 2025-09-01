@@ -15,6 +15,7 @@ Settings → Secrets and variables → Actions → New repository secret
 #### `SERVER_IP`
 
 - **Значение**: `164.92.133.111`
+
 - **Описание**: IP адрес вашего DigitalOcean сервера
 
 #### `SERVER_USER`
