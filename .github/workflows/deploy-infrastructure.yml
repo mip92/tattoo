@@ -42,7 +42,7 @@ jobs:
                 git clean -fd
             fi
             echo "🔧 Creating .env file from GitHub Secrets..."
-            cat > .env << 'EOF'
+            cat > .env << EOF
             DATABASE_URL=$DATABASE_URL
             JWT_SECRET=$JWT_SECRET
             JWT_ACCESS_TOKEN_EXPIRES_IN=$JWT_ACCESS_TOKEN_EXPIRES_IN
