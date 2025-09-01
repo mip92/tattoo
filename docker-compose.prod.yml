@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  # NestJS Backend API
+  # NestJS Backend API (с базой данных внутри)
   backend:
     image: mip92/tattoo-server:latest
     container_name: tattoo-backend-prod
@@ -14,9 +14,8 @@ services:
       JWT_REFRESH_TOKEN_EXPIRES_IN: ${JWT_REFRESH_TOKEN_EXPIRES_IN:-7d}
       PORT: 3000
       NODE_OPTIONS: "--max-old-space-size=256"
-    depends_on:
-      database:
-        condition: service_healthy
+    volumes:
+      - backend_data:/app/data # Volume для сохранения данных базы
     networks:
       - tattoo-network
     ports:
@@ -72,3 +71,6 @@ services:
 networks:
   tattoo-network:
     driver: bridge
+
+volumes:
+  backend_data: # Volume для сохранения данных базы внутри backend

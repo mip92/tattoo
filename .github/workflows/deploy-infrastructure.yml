@@ -53,8 +53,8 @@ jobs:
             docker-compose -f docker-compose.prod.yml down
             echo "🧹 Cleaning old images..."
             docker image prune -f
-            echo "📁 Ensuring data directory exists..."
-            mkdir -p /root/tattoo-data
+            echo "📁 Ensuring backend data directory exists..."
+            mkdir -p /root/backend-data
             echo "🔄 Starting all services..."
             docker-compose -f docker-compose.prod.yml up -d
             echo "⏳ Waiting for services to initialize..."
