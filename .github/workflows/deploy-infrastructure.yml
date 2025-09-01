@@ -26,8 +26,20 @@ jobs:
             cd /root/tattoo-app
 
             # Получаем последние изменения из git
-            echo "📥 Pulling latest changes from git..."
-            git pull origin main
+            echo "📥 Checking repository status..."
+
+            if [ ! -d ".git" ]; then
+                echo "📥 Repository not found, cloning fresh..."
+                cd /root
+                rm -rf tattoo-app
+                git clone https://github.com/mip92/tattoo.git tattoo-app
+                cd tattoo-app
+            else
+                echo "📥 Updating existing repository..."
+                git fetch origin main
+                git reset --hard origin/main
+                git clean -fd
+            fi
 
             # Останавливаем все сервисы
             echo "⏹️ Stopping all services..."
