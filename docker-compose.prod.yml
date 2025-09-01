@@ -14,6 +14,9 @@ services:
       JWT_REFRESH_TOKEN_EXPIRES_IN: ${JWT_REFRESH_TOKEN_EXPIRES_IN:-7d}
       PORT: 3000
       NODE_OPTIONS: "--max-old-space-size=256"
+    depends_on:
+      database:
+        condition: service_healthy
     networks:
       - tattoo-network
     ports:
