@@ -25,12 +25,6 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: |
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            JWT_ACCESS_TOKEN_EXPIRES_IN=${{ secrets.JWT_ACCESS_TOKEN_EXPIRES_IN }}
-            JWT_REFRESH_TOKEN_EXPIRES_IN=${{ secrets.JWT_REFRESH_TOKEN_EXPIRES_IN }}
-            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
           script: |
             echo "🚀 Starting infrastructure deployment..."
             cd /root/tattoo-app
@@ -57,12 +51,12 @@ jobs:
             echo "DEBUG: NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}"
 
             echo "🔧 Creating .env file from GitHub Secrets..."
-            cat > .env << EOF
-            DATABASE_URL=$DATABASE_URL
-            JWT_SECRET=$JWT_SECRET
-            JWT_ACCESS_TOKEN_EXPIRES_IN=$JWT_ACCESS_TOKEN_EXPIRES_IN
-            JWT_REFRESH_TOKEN_EXPIRES_IN=$JWT_REFRESH_TOKEN_EXPIRES_IN
-            NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+            cat > .env << 'EOF'
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_ACCESS_TOKEN_EXPIRES_IN=${{ secrets.JWT_ACCESS_TOKEN_EXPIRES_IN }}
+            JWT_REFRESH_TOKEN_EXPIRES_IN=${{ secrets.JWT_REFRESH_TOKEN_EXPIRES_IN }}
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
             EOF
             echo "⏹️ Stopping all services..."
             docker-compose -f docker-compose.prod.yml down
