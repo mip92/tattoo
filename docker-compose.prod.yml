@@ -18,7 +18,6 @@ services:
       - tattoo-network
     ports:
       - "3000:3000" # Порт для API
-      - "5433:5432" # Порт для доступа к базе данных
     command: npm run start:prod
     healthcheck:
       test:
