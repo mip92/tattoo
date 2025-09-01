@@ -29,13 +29,18 @@ jobs:
 
             cd /root/tattoo-app
 
-            # Останавливаем backend
-            echo "⏹️ Stopping backend service..."
-            docker-compose -f docker-compose.prod.yml stop backend
+            # Принудительно останавливаем и удаляем backend контейнер
+            echo "⏹️ Force stopping and removing backend container..."
+            docker-compose -f docker-compose.prod.yml down backend
+            docker rm -f tattoo-backend-prod || true
 
-            # Удаляем старый образ
-            echo "🗑️ Removing old backend image..."
-            docker rmi mip92/tattoo-server:latest || true
+            # Удаляем старый образ (принудительно)
+            echo "🗑️ Force removing old backend image..."
+            docker rmi -f mip92/tattoo-server:latest || true
+
+            # Очищаем неиспользуемые образы
+            echo "🧹 Cleaning up unused images..."
+            docker image prune -f
 
             # Запускаем backend с новым образом
             echo "🔄 Starting backend with new image..."
@@ -48,6 +53,10 @@ jobs:
             # Проверяем статус
             echo "📊 Checking backend status..."
             docker ps | grep backend
+
+            # Проверяем, что используется новый образ
+            echo "🔍 Checking image hash..."
+            docker inspect mip92/tattoo-server:latest --format='{{.Id}}' || echo "New image not found"
 
             # Проверяем health check
             echo "💚 Checking backend health..."

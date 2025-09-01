@@ -29,13 +29,18 @@ jobs:
 
             cd /root/tattoo-app
 
-            # Останавливаем frontend
-            echo "⏹️ Stopping frontend service..."
-            docker-compose -f docker-compose.prod.yml stop frontend
+            # Принудительно останавливаем и удаляем frontend контейнер
+            echo "⏹️ Force stopping and removing frontend container..."
+            docker-compose -f docker-compose.prod.yml down frontend
+            docker rm -f tattoo-frontend-prod || true
 
-            # Удаляем старый образ
-            echo "🗑️ Removing old frontend image..."
-            docker rmi mip92/tattoo-client:latest || true
+            # Удаляем старый образ (принудительно)
+            echo "🗑️ Force removing old frontend image..."
+            docker rmi -f mip92/tattoo-client:latest || true
+
+            # Очищаем неиспользуемые образы
+            echo "🧹 Cleaning up unused images..."
+            docker image prune -f
 
             # Запускаем frontend с новым образом
             echo "🔄 Starting frontend with new image..."
@@ -48,6 +53,10 @@ jobs:
             # Проверяем статус
             echo "📊 Checking frontend status..."
             docker ps | grep frontend
+
+            # Проверяем, что используется новый образ
+            echo "🔍 Checking image hash..."
+            docker inspect mip92/tattoo-client:latest --format='{{.Id}}' || echo "New image not found"
 
             echo "✅ Frontend deployment completed!"
 
