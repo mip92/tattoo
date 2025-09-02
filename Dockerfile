@@ -1,16 +1,16 @@
-# Multi-stage build для Next.js frontend
+# Multi-stage build for Next.js frontend
 FROM node:22-alpine AS builder
 
-# Принимаем build argument для API URL
+# Accept build argument for API URL
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-# Устанавливаем зависимости для сборки
+# Install dependencies for build
 RUN apk add --update --no-cache openssl
 
 WORKDIR /app
 
-# Копируем файлы зависимостей ПЕРВЫМИ для лучшего кеширования
+# Copy dependency files FIRST for better caching
 COPY package*.json ./
 COPY next.config.ts ./
 COPY tailwind.config.* ./
@@ -18,42 +18,42 @@ COPY postcss.config.* ./
 COPY tsconfig.json ./
 COPY graphql.config.ts ./
 
-# Устанавливаем ВСЕ зависимости (включая devDependencies для сборки)
+# Install ALL dependencies (including devDependencies for build)
 RUN npm ci --production=false --no-audit --no-fund --prefer-offline --no-optional
 
-# Копируем исходный код ПОСЛЕ установки зависимостей
+# Copy source code AFTER installing dependencies
 COPY . .
 
-# Генерируем GraphQL типы
+# Generate GraphQL types
 RUN npm run codegen
 
-# Собираем приложение
+# Build application
 RUN npm run build
 
 # Production stage
 FROM node:22-alpine AS production
 
-# Принимаем build argument для API URL
+# Accept build argument for API URL
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-# Устанавливаем только необходимые пакеты
+# Install only necessary packages
 RUN apk add --update --no-cache openssl
 
 WORKDIR /app
 
-# Копируем package.json для production зависимостей
+# Copy package.json for production dependencies
 COPY package*.json ./
 
-# Устанавливаем ТОЛЬКО production зависимости
+# Install ONLY production dependencies
 RUN npm ci --only=production --no-audit --no-fund --prefer-offline --no-optional
 
-# Копируем собранное приложение из builder stage
+# Copy built application from builder stage
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.ts ./
 
-# Ограничиваем память для Node.js
+# Limit memory for Node.js
 ENV NODE_OPTIONS="--max-old-space-size=128"
 
 EXPOSE 3000

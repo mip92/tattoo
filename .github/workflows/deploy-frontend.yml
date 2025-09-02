@@ -1,8 +1,8 @@
 name: Deploy Frontend
 
 on:
-  workflow_dispatch: # Ручной запуск
-  repository_dispatch: # Событие от tclient репозитория
+  workflow_dispatch: # Manual trigger
+  repository_dispatch: # Event from tclient repository
     types: [deploy-frontend]
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
       - name: Get frontend image info
         id: image-info
         run: |
-          # Получаем информацию о новом образе из payload
+          # Get information about new image from payload
           FRONTEND_IMAGE="${{ github.event.client_payload.frontend_image }}"
           echo "frontend_image=$FRONTEND_IMAGE" >> $GITHUB_OUTPUT
           echo "🚀 Deploying frontend image: $FRONTEND_IMAGE"
@@ -29,32 +29,32 @@ jobs:
 
             cd /root/tattoo-app
 
-            # Принудительно останавливаем и удаляем frontend контейнер
+            # Force stop and remove frontend container
             echo "⏹️ Force stopping and removing frontend container..."
             docker-compose -f docker-compose.prod.yml down frontend
             docker rm -f tattoo-frontend-prod || true
 
-            # Удаляем старый образ (принудительно)
+            # Remove old image (force)
             echo "🗑️ Force removing old frontend image..."
             docker rmi -f mip92/tattoo-client:latest || true
 
-            # Очищаем неиспользуемые образы
+            # Clean up unused images
             echo "🧹 Cleaning up unused images..."
             docker image prune -f
 
-            # Запускаем frontend с новым образом
+            # Start frontend with new image
             echo "🔄 Starting frontend with new image..."
             docker-compose -f docker-compose.prod.yml up -d frontend
 
-            # Ждем инициализации
+            # Wait for initialization
             echo "⏳ Waiting for frontend to initialize..."
             sleep 20
 
-            # Проверяем статус
+            # Check status
             echo "📊 Checking frontend status..."
             docker ps | grep frontend
 
-            # Проверяем, что используется новый образ
+            # Check that new image is being used
             echo "🔍 Checking image hash..."
             docker inspect mip92/tattoo-client:latest --format='{{.Id}}' || echo "New image not found"
 
@@ -65,7 +65,7 @@ jobs:
           echo "🔍 Testing frontend health..."
           sleep 10
 
-          # Проверяем main page
+          # Check main page
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/)
 
           if [ "$RESPONSE" = "200" ]; then

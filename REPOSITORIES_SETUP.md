@@ -1,158 +1,158 @@
-# 🔧 Настройка соседних репозиториев
+# 🔧 Neighboring Repositories Setup
 
-## 📋 Что нужно настроить
+## 📋 What needs to be configured
 
-Для полной автоматизации деплоя необходимо настроить GitHub Actions в репозиториях `tclient` и `tserver`.
+To enable full deployment automation, you need to configure GitHub Actions in the `tclient` and `tserver` repositories.
 
-## 🎯 Репозиторий `tclient` (Frontend)
+## 🎯 `tclient` Repository (Frontend)
 
-### 1. Создайте папку `.github/workflows/`
-
-```bash
-mkdir -p .github/workflows/
-```
-
-### 2. Скопируйте файл `frontend-workflow.yml` в `.github/workflows/build-and-push.yml`
-
-### 3. Настройте GitHub Secrets
-
-Перейдите в `Settings → Secrets and variables → Actions → New repository secret`
-
-#### `DOCKER_USERNAME`
-
-- **Значение**: `mip92`
-- **Описание**: Ваш Docker Hub username
-
-#### `DOCKER_PASSWORD`
-
-- **Значение**: Ваш Docker Hub access token
-- **Описание**: Docker Hub access token (НЕ пароль!)
-
-## 🎯 Репозиторий `tserver` (Backend)
-
-### 1. Создайте папку `.github/workflows/`
+### 1. Create `.github/workflows/` folder
 
 ```bash
 mkdir -p .github/workflows/
 ```
 
-### 2. Скопируйте файл `backend-workflow.yml` в `.github/workflows/build-and-push.yml`
+### 2. Create `build-and-push.yml` file in `.github/workflows/` with frontend build configuration
 
-### 3. Настройте GitHub Secrets
+### 3. Configure GitHub Secrets
 
-Перейдите в `Settings → Secrets and variables → Actions → New repository secret`
+Go to `Settings → Secrets and variables → Actions → New repository secret`
 
 #### `DOCKER_USERNAME`
 
-- **Значение**: `mip92`
-- **Описание**: Ваш Docker Hub username
+- **Value**: `mip92`
+- **Description**: Your Docker Hub username
 
 #### `DOCKER_PASSWORD`
 
-- **Значение**: Ваш Docker Hub access token
-- **Описание**: Docker Hub access token (НЕ пароль!)
+- **Value**: Your Docker Hub access token
+- **Description**: Docker Hub access token (NOT password!)
 
-## 🔑 Как получить Docker Hub Access Token
+## 🎯 `tserver` Repository (Backend)
 
-### 1. Войдите в Docker Hub
+### 1. Create `.github/workflows/` folder
 
-Перейдите на https://hub.docker.com/
+```bash
+mkdir -p .github/workflows/
+```
 
-### 2. Создайте Access Token
+### 2. Create `build-and-push.yml` file in `.github/workflows/` with backend build configuration
+
+### 3. Configure GitHub Secrets
+
+Go to `Settings → Secrets and variables → Actions → New repository secret`
+
+#### `DOCKER_USERNAME`
+
+- **Value**: `mip92`
+- **Description**: Your Docker Hub username
+
+#### `DOCKER_PASSWORD`
+
+- **Value**: Your Docker Hub access token
+- **Description**: Docker Hub access token (NOT password!)
+
+## 🔑 How to get Docker Hub Access Token
+
+### 1. Login to Docker Hub
+
+Go to https://hub.docker.com/
+
+### 2. Create Access Token
 
 - `Account Settings` → `Security` → `New Access Token`
-- Название: `github-actions`
-- Права: `Read & Write`
-- Скопируйте токен
+- Name: `github-actions`
+- Permissions: `Read & Write`
+- Copy the token
 
-### 3. Добавьте токен в GitHub Secrets
+### 3. Add token to GitHub Secrets
 
-- В каждом репозитории добавьте `DOCKER_PASSWORD` с этим токеном
+- In each repository, add `DOCKER_PASSWORD` with this token
 
-## 🔄 Как теперь работает автоматизация
+## 🔄 How automation works now
 
-### **Полный цикл автоматизации:**
+### **Full automation cycle:**
 
-1. **Вы мержите код в `tclient` main**
-   → GitHub Actions автоматически собирает и пушит `mip92/tattoo-client:latest`
+1. **You merge code to `tclient` main**
+   → GitHub Actions automatically builds and pushes `mip92/tattoo-client:latest`
 
-2. **Вы мержите код в `tserver` main**
-   → GitHub Actions автоматически собирает и пушит `mip92/tattoo-server:latest`
+2. **You merge code to `tserver` main**
+   → GitHub Actions automatically builds and pushes `mip92/tattoo-server:latest`
 
-3. **Этот репозиторий каждые 6 часов**
-   → Проверяет обновления образов и автоматически деплоит на сервер
+3. **This repository manually**
+   → Deploy workflows can be triggered manually when new images are available
 
-## 📁 Структура файлов
+## 📁 File structure
 
-### В `tclient` репозитории:
+### In `tclient` repository:
 
 ```
 tclient/
 ├── .github/
 │   └── workflows/
-│       └── build-and-push.yml  # ← Скопировать frontend-workflow.yml
+│       └── build-and-push.yml  # ← Create frontend build workflow
 ├── Dockerfile
 ├── package.json
-└── ... (остальные файлы)
+└── ... (other files)
 ```
 
-### В `tserver` репозитории:
+### In `tserver` repository:
 
 ```
 tserver/
 ├── .github/
 │   └── workflows/
-│       └── build-and-push.yml  # ← Скопировать backend-workflow.yml
+│       └── build-and-push.yml  # ← Create backend build workflow
 ├── Dockerfile
 ├── package.json
-└── ... (остальные файлы)
+└── ... (other files)
 ```
 
-## 🧪 Тестирование
+## 🧪 Testing
 
-### 1. **В `tclient` репозитории:**
+### 1. **In `tclient` repository:**
 
-- Сделайте тестовый коммит в main
-- Проверьте GitHub Actions → должен запуститься "Build and Push Frontend"
-- Убедитесь, что образ появился в Docker Hub
+- Make a test commit to main
+- Check GitHub Actions → "Build and Push Frontend" should start
+- Ensure image appears in Docker Hub
 
-### 2. **В `tserver` репозитории:**
+### 2. **In `tserver` repository:**
 
-- Сделайте тестовый коммит в main
-- Проверьте GitHub Actions → должен запуститься "Build and Push Backend"
-- Убедитесь, что образ появился в Docker Hub
+- Make a test commit to main
+- Check GitHub Actions → "Build and Push Backend" should start
+- Ensure image appears in Docker Hub
 
-### 3. **В этом репозитории:**
+### 3. **In this repository:**
 
-- Подождите до 6 часов или запустите вручную "Deploy Frontend"/"Deploy Backend"
-- Проверьте, что новые образы автоматически задеплоились
+- Manually run "Deploy Frontend"/"Deploy Backend" workflows when new images are available
+- Check that new images are automatically deployed
 
-## 🚨 Важные моменты
+## 🚨 Important notes
 
-### **Безопасность:**
+### **Security:**
 
-- Docker Hub access token должен иметь права `Read & Write`
-- Токен должен быть добавлен в GitHub Secrets
-- НЕ коммитьте токен в код!
+- Docker Hub access token should have `Read & Write` permissions
+- Token should be added to GitHub Secrets
+- DO NOT commit token to code!
 
-### **Права доступа:**
+### **Access permissions:**
 
-- Убедитесь, что у вас есть права на push в Docker Hub репозиторий `mip92/tattoo-client`
-- Убедитесь, что у вас есть права на push в Docker Hub репозиторий `mip92/tattoo-server`
+- Ensure you have push rights to Docker Hub repository `mip92/tattoo-client`
+- Ensure you have push rights to Docker Hub repository `mip92/tattoo-server`
 
-### **Проверка:**
+### **Verification:**
 
-- После настройки проверьте, что образы собираются и пушатся
-- Проверьте, что multi-arch сборка работает (amd64 + arm64)
+- After setup, verify that images are built and pushed
+- Check that multi-arch build works (amd64 + arm64)
 
-## 🎉 Результат
+## 🎉 Result
 
-После настройки всех трех репозиториев у вас будет:
+After setting up all three repositories, you will have:
 
-✅ **Полностью автоматизированный CI/CD pipeline**  
-✅ **Автоматическая сборка при мерже в main**  
-✅ **Автоматический деплой на продакшн сервер**  
-✅ **Мониторинг всех процессов**  
-✅ **Zero-downtime деплои**
+✅ **Fully automated CI/CD pipeline**  
+✅ **Automatic build on merge to main**  
+✅ **Automatic deployment to production server**  
+✅ **Monitoring of all processes**  
+✅ **Zero-downtime deployments**
 
-**Теперь вы можете просто мержить код и получать автоматический деплой!** 🚀
+**Now you can simply merge code and get automatic deployment!** 🚀

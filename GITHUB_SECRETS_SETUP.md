@@ -1,91 +1,90 @@
-# 🔐 Настройка GitHub Secrets для автоматического деплоя
+# 🔐 GitHub Secrets Setup for Automatic Deployment
 
-## 📋 Что нужно настроить
+## 📋 What needs to be configured
 
-Для работы автоматического деплоя необходимо добавить следующие secrets в настройки репозитория:
+To enable automatic deployment, you need to add the following secrets to your repository settings:
 
-### 1. Перейдите в настройки репозитория
+### 1. Go to repository settings
 
 ```
 Settings → Secrets and variables → Actions → New repository secret
 ```
 
-### 2. Добавьте следующие secrets:
+### 2. Add the following secrets:
 
 #### `SERVER_IP`
 
-- **Значение**: `164.92.133.111`
-
-- **Описание**: IP адрес вашего DigitalOcean сервера
+- **Value**: `164.92.133.111`
+- **Description**: IP address of your DigitalOcean server
 
 #### `SERVER_USER`
 
-- **Значение**: `root`
-- **Описание**: Пользователь для SSH подключения к серверу
+- **Value**: `root`
+- **Description**: User for SSH connection to the server
 
 #### `SSH_PRIVATE_KEY`
 
-- **Значение**: Содержимое вашего приватного SSH ключа
-- **Описание**: Приватный SSH ключ для подключения к серверу
+- **Value**: Content of your private SSH key
+- **Description**: Private SSH key for server connection
 
-## 🔑 Как получить SSH ключ
+## 🔑 How to get SSH key
 
-### Если у вас уже есть SSH ключ:
+### If you already have an SSH key:
 
 ```bash
 cat ~/.ssh/id_rsa
-# Скопируйте ВСЕ содержимое (включая строки BEGIN и END)
+# Copy ALL content (including BEGIN and END lines)
 ```
 
-### Если нужно создать новый SSH ключ:
+### If you need to create a new SSH key:
 
 ```bash
-# Генерируем новый ключ
+# Generate new key
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 
-# Копируем публичный ключ на сервер
+# Copy public key to server
 ssh-copy-id root@164.92.133.111
 
-# Копируем приватный ключ для GitHub
+# Copy private key for GitHub
 cat ~/.ssh/id_rsa
 ```
 
-## ⚠️ Важные моменты
+## ⚠️ Important notes
 
-1. **SSH ключ должен быть добавлен на сервер** в `~/.ssh/authorized_keys`
-2. **Приватный ключ НЕ должен содержать лишних символов** (пробелы, переносы строк)
-3. **Все secrets чувствительны к регистру** - используйте точные названия
-4. **После добавления secrets** GitHub Actions автоматически получит к ним доступ
+1. **SSH key must be added to the server** in `~/.ssh/authorized_keys`
+2. **Private key should NOT contain extra characters** (spaces, line breaks)
+3. **All secrets are case-sensitive** - use exact names
+4. **After adding secrets** GitHub Actions will automatically have access to them
 
-## 🧪 Тестирование
+## 🧪 Testing
 
-После настройки secrets:
+After setting up secrets:
 
-1. **Перейдите в Actions** в вашем репозитории
-2. **Выберите любой workflow** (например, "Deploy Infrastructure")
-3. **Нажмите "Run workflow"** → "Run workflow"
-4. **Проверьте логи** выполнения
+1. **Go to Actions** in your repository
+2. **Select any workflow** (e.g., "Deploy Infrastructure")
+3. **Click "Run workflow"** → "Run workflow"
+4. **Check execution logs**
 
-## 🔄 Автоматизация
+## 🔄 Automation
 
-После настройки:
+After setup:
 
-- **При мерже в main** → автоматический деплой инфраструктуры
-- **Каждые 6 часов** → проверка обновлений frontend/backend
-- **При обновлении образов** → автоматический деплой
+- **When merging to main** → automatic infrastructure deployment
+- **Manual triggers** → deploy frontend/backend when needed
+- **When images are updated** → automatic deployment
 
-## 🚨 Безопасность
+## 🚨 Security
 
-- **SSH ключ** должен быть защищен паролем
-- **Доступ к серверу** должен быть ограничен только необходимыми IP
-- **Логи деплоя** доступны только владельцам репозитория
-- **Secrets** зашифрованы и недоступны в логах
+- **SSH key** should be password protected
+- **Server access** should be limited to necessary IPs only
+- **Deployment logs** are only available to repository owners
+- **Secrets** are encrypted and not visible in logs
 
-## 📞 Поддержка
+## 📞 Support
 
-При проблемах с настройкой:
+If you have setup issues:
 
-1. Проверьте правильность SSH ключа
-2. Убедитесь, что ключ добавлен на сервер
-3. Проверьте права доступа к серверу
-4. Посмотрите логи выполнения в GitHub Actions
+1. Check SSH key correctness
+2. Ensure key is added to the server
+3. Verify server access permissions
+4. Check execution logs in GitHub Actions

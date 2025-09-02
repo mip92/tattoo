@@ -1,22 +1,22 @@
 # Tattoo App - Automated Deployment Guide
 
-## 🚀 Автоматизированный деплой приложения
+## 🚀 Automated Application Deployment
 
-Этот репозиторий содержит **инфраструктуру и автоматизацию** для деплоя Tattoo App на DigitalOcean сервер.
+This repository contains **infrastructure and automation** for deploying Tattoo App to a DigitalOcean server.
 
-**🎯 Основная цель**: Полностью автоматизированный деплой без ручных команд!
+**🎯 Main goal**: Fully automated deployment without manual commands!
 
-## ⚠️ Важно: Настройка всех репозиториев
+## ⚠️ Important: Setup of All Repositories
 
-Для полной автоматизации необходимо настроить **ТРИ репозитория**:
+For full automation, you need to configure **THREE repositories**:
 
-1. **`tattoo-nginx`** (этот) - инфраструктура и автоматический деплой ✅
-2. **`tclient`** - автоматическая сборка frontend образов ⚠️
-3. **`tserver`** - автоматическая сборка backend образов ⚠️
+1. **`tattoo-nginx`** (this one) - infrastructure and automatic deployment ✅
+2. **`tclient`** - automatic frontend image builds ⚠️
+3. **`tserver`** - automatic backend image builds ⚠️
 
-**📋 Инструкции по настройке соседних репозиториев**: [REPOSITORIES_SETUP.md](./REPOSITORIES_SETUP.md)
+**📋 Instructions for setting up neighboring repositories**: [REPOSITORIES_SETUP.md](./REPOSITORIES_SETUP.md)
 
-## 🏗️ Архитектура автоматизации
+## 🏗️ Automation Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -45,62 +45,63 @@
                        └─────────────────┘
 ```
 
-## 🔄 Как работает автоматизация
+## 🔄 How Automation Works
 
-### 1. **Frontend обновления** (репозиторий `tclient`)
+### 1. **Frontend Updates** (`tclient` repository)
 
-- При мерже в `main` → автоматическая сборка Docker образа
-- Образ пушится в Docker Hub
-- **Этот репозиторий** автоматически обнаруживает обновления и деплоит frontend
+- On merge to `main` → automatic Docker image build
+- Image is pushed to Docker Hub
+- **This repository** automatically detects updates and deploys frontend
 
-### 2. **Backend обновления** (репозиторий `tserver`)
+### 2. **Backend Updates** (`tserver` repository)
 
-- При мерже в `main` → автоматическая сборка Docker образа
-- Образ пушится в Docker Hub
-- **Этот репозиторий** автоматически обнаруживает обновления и деплоит backend
+- On merge to `main` → automatic Docker image build
+- Image is pushed to Docker Hub
+- **This repository** automatically detects updates and deploys backend
 
-### 3. **Инфраструктурные изменения** (этот репозиторий)
+### 3. **Infrastructure Changes** (this repository)
 
-- При мерже в `main` → полный передеплой всей инфраструктуры
-- Обновление конфигурации, Nginx, переменных окружения
+- On merge to `main` → full infrastructure redeployment
+- Configuration updates, Nginx, environment variables
 
-## 📁 Структура проекта
+## 📁 Project Structure
 
 ```
 tattoo-nginx/
-├── .github/workflows/           # GitHub Actions для автоматического деплоя
-│   ├── deploy-infrastructure.yml # Полный деплой инфраструктуры
-│   ├── deploy-frontend.yml      # Автоматический деплой frontend
-│   └── deploy-backend.yml       # Автоматический деплой backend
-├── docker-compose.prod.yml      # Продакшн конфигурация
-├── nginx/                       # Nginx конфигурация
-├── REPOSITORIES_SETUP.md        # Инструкция по настройке соседних репозиториев
-├── GITHUB_SECRETS_SETUP.md      # Инструкция по настройке secrets
-└── README.md                    # Этот файл
+├── .github/workflows/           # GitHub Actions for automatic deployment
+│   ├── deploy-infrastructure.yml # Full infrastructure deployment
+│   ├── deploy-frontend.yml      # Automatic frontend deployment
+│   └── deploy-backend.yml       # Automatic backend deployment
+├── docker-compose.prod.yml      # Production configuration
+├── nginx/                       # Nginx configuration
+├── REPOSITORIES_SETUP.md        # Instructions for setting up neighboring repositories
+├── GITHUB_SECRETS_SETUP.md      # Instructions for setting up secrets
+└── README.md                    # This file
 ```
 
-## 🚀 Что происходит автоматически
+## 🚀 What Happens Automatically
 
-### **При мерже в main любого репозитория:**
+### **On merge to main of any repository:**
 
-1. **Frontend мерж** → автоматический деплой frontend на сервер
-2. **Backend мерж** → автоматический деплой backend на сервер
-3. **Infrastructure мерж** → полный передеплой всей системы
+1. **Frontend merge** → automatic frontend deployment to server
+2. **Backend merge** → automatic backend deployment to server
+3. **Infrastructure merge** → full system redeployment
 
-### **По расписанию (каждые 10 минут):**
+### **Manual triggers:**
 
-- Проверка обновлений Docker образов
-- Автоматический деплой при обнаружении новых версий
+- Deploy Frontend workflow can be triggered manually
+- Deploy Backend workflow can be triggered manually
+- Deploy Infrastructure workflow runs on push to main
 
-## 🔧 Настройка автоматизации
+## 🔧 Automation Setup
 
-### Шаг 1: Настройка этого репозитория
+### Step 1: Setup this repository
 
-Следуйте инструкции в [GITHUB_SECRETS_SETUP.md](./GITHUB_SECRETS_SETUP.md)
+Follow instructions in [GITHUB_SECRETS_SETUP.md](./GITHUB_SECRETS_SETUP.md)
 
-#### Настройка переменных окружения
+#### Environment Variables Setup
 
-Создайте файл `.env` на сервере в директории `/root/tattoo-app/` со следующим содержимым:
+Create `.env` file on the server in `/root/tattoo-app/` directory with the following content:
 
 ```bash
 # Database Configuration
@@ -120,136 +121,136 @@ JWT_REFRESH_TOKEN_EXPIRES_IN=7d
 NEXT_PUBLIC_API_URL=http://backend:3000
 ```
 
-**⚠️ Важно**: Измените пароли и JWT_SECRET на уникальные значения для production!
+**⚠️ Important**: Change passwords and JWT_SECRET to unique values for production!
 
-### Шаг 2: Настройка соседних репозиториев
+### Step 2: Setup neighboring repositories
 
-Следуйте инструкции в [REPOSITORIES_SETUP.md](./REPOSITORIES_SETUP.md)
+Follow instructions in [REPOSITORIES_SETUP.md](./REPOSITORIES_SETUP.md)
 
-### Шаг 3: Проверка работы
+### Step 3: Verify functionality
 
-1. Перейдите в **Actions** в каждом репозитории
-2. Выберите любой workflow
-3. Нажмите **"Run workflow"**
+1. Go to **Actions** in each repository
+2. Select any workflow
+3. Click **"Run workflow"**
 
-### Шаг 4: Тестирование
+### Step 4: Testing
 
-- Сделайте тестовый коммит в main каждого репозитория
-- Проверьте автоматический запуск деплоя
-- Убедитесь, что все сервисы работают
+- Make a test commit to main in each repository
+- Check automatic deployment launch
+- Ensure all services are working
 
-## 🎯 Преимущества новой системы
+## 🎯 Benefits of New System
 
-✅ **Полная автоматизация** - никаких ручных команд  
-✅ **Безопасность** - деплой только после мержа в main  
-✅ **Мониторинг** - все деплои логируются в GitHub Actions  
-✅ **Откат** - легко вернуться к предыдущей версии  
-✅ **Разделение ответственности** - каждый репозиторий отвечает за свою часть
+✅ **Full automation** - no manual commands  
+✅ **Security** - deployment only after merge to main  
+✅ **Monitoring** - all deployments are logged in GitHub Actions  
+✅ **Rollback** - easy return to previous version  
+✅ **Separation of concerns** - each repository is responsible for its part
 
-## 📊 Мониторинг деплоев
+## 📊 Deployment Monitoring
 
 ### GitHub Actions Dashboard
 
-- Все деплои отображаются в разделе **Actions**
-- Детальные логи каждого этапа
-- Статус выполнения (успех/ошибка)
+- All deployments are displayed in **Actions** section
+- Detailed logs of each stage
+- Execution status (success/error)
 
-### Автоматические уведомления
+### Automatic Notifications
 
-- Успешный деплой → ✅ зеленый статус
-- Ошибка деплоя → ❌ красный статус с деталями
-- Health checks → автоматическая проверка работоспособности
+- Successful deployment → ✅ green status
+- Deployment error → ❌ red status with details
+- Health checks → automatic functionality verification
 
-## 🚨 Что делать при проблемах
+## 🚨 What to Do When Problems Occur
 
-### 1. **Проверить логи GitHub Actions**
+### 1. **Check GitHub Actions logs**
 
-- Перейти в Actions → выбрать workflow → посмотреть логи
+- Go to Actions → select workflow → view logs
 
-### 2. **Проверить статус сервера**
+### 2. **Check server status**
 
 ```bash
 ssh root@164.92.133.111 "docker ps"
 ```
 
-### 3. **Запустить деплой вручную**
+### 3. **Run deployment manually**
 
-- В GitHub Actions → выбрать workflow → "Run workflow"
+- In GitHub Actions → select workflow → "Run workflow"
 
-### 4. **Проверить secrets**
+### 4. **Check secrets**
 
-- Убедиться, что все secrets настроены правильно
-- Проверить SSH ключ на сервере
+- Ensure all secrets are configured correctly
+- Verify SSH key on server
 
-## 🔄 Ручной деплой (если нужно)
+## 🔄 Manual Deployment (if needed)
 
-### Полный передеплой инфраструктуры:
-
-```bash
-# В GitHub Actions → "Deploy Infrastructure" → "Run workflow"
-```
-
-### Деплой только frontend:
+### Full infrastructure redeployment:
 
 ```bash
-# В GitHub Actions → "Deploy Frontend" → "Run workflow"
+# In GitHub Actions → "Deploy Infrastructure" → "Run workflow"
 ```
 
-### Деплой только backend:
+### Frontend only deployment:
 
 ```bash
-# В GitHub Actions → "Deploy Backend" → "Run workflow"
+# In GitHub Actions → "Deploy Frontend" → "Run workflow"
 ```
 
-## 📝 Чек-лист настройки
+### Backend only deployment:
 
-### В этом репозитории (tattoo-nginx):
+```bash
+# In GitHub Actions → "Deploy Backend" → "Run workflow"
+```
 
-- [ ] Настроены GitHub Secrets (`SERVER_IP`, `SERVER_USER`, `SSH_PRIVATE_KEY`)
-- [ ] SSH ключ добавлен на сервер
-- [ ] Создан файл `.env` на сервере с переменными окружения
-- [ ] Протестирован первый автоматический деплой
+## 📝 Setup Checklist
 
-### В репозитории tclient (frontend):
+### In this repository (tattoo-nginx):
 
-- [ ] Создана папка `.github/workflows/`
-- [ ] Настроены secrets (`DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`)
-- [ ] Протестирована автоматическая сборка
+- [ ] GitHub Secrets configured (`SERVER_IP`, `SERVER_USER`, `SSH_PRIVATE_KEY`)
+- [ ] SSH key added to server
+- [ ] `.env` file created on server with environment variables
+- [ ] First automatic deployment tested
 
-### В репозитории tserver (backend):
+### In tclient repository (frontend):
 
-- [ ] Создана папка `.github/workflows/`
-- [ ] Настроены secrets (`DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`)
-- [ ] Протестирована автоматическая сборка
+- [ ] `.github/workflows/` folder created
+- [ ] Secrets configured (`DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`)
+- [ ] Automatic build tested
 
-### Общие проверки:
+### In tserver repository (backend):
 
-- [ ] Проверена работа всех сервисов
-- [ ] Настроены уведомления (опционально)
-- [ ] Протестирован полный цикл автоматизации
+- [ ] `.github/workflows/` folder created
+- [ ] Secrets configured (`DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`)
+- [ ] Automatic build tested
 
-## 🎉 Результат
+### General checks:
 
-После настройки у вас будет:
+- [ ] All services functionality verified
+- [ ] Notifications configured (optional)
+- [ ] Full automation cycle tested
 
-- 🚀 **Полностью автоматизированный деплой**
-- 📊 **Мониторинг всех процессов**
-- 🔒 **Безопасная система обновлений**
-- 📈 **Масштабируемая инфраструктура**
+## 🎉 Result
 
-**Время настройки**: ~30 минут (все три репозитория)  
-**Время деплоя**: ~2-5 минут  
-**Автоматизация**: 100%
+After setup, you will have:
+
+- 🚀 **Fully automated deployment**
+- 📊 **Monitoring of all processes**
+- 🔒 **Secure update system**
+- 📈 **Scalable infrastructure**
+
+**Setup time**: ~30 minutes (all three repositories)  
+**Deployment time**: ~2-5 minutes  
+**Automation**: 100%
 
 ---
 
-## 📞 Поддержка
+## 📞 Support
 
-При возникновении проблем:
+If problems occur:
 
-1. Проверьте логи в GitHub Actions
-2. Убедитесь в правильности secrets
-3. Проверьте статус сервера
-4. При необходимости запустите деплой вручную
+1. Check logs in GitHub Actions
+2. Verify secrets are correct
+3. Check server status
+4. Run deployment manually if needed
 
-**🎯 Теперь вы можете просто мержить код в main и получать автоматический деплой!**
+**🎯 Now you can simply merge code to main and get automatic deployment!**

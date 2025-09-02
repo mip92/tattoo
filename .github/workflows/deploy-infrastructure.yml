@@ -49,8 +49,8 @@ jobs:
                 git clean -fd
             fi
 
-            # Debug: проверяем что переменные подставились из GitHub Secrets
-            echo "🔍 DEBUG: Проверяем переменные из GitHub Secrets..."
+            # Debug: check that variables were substituted from GitHub Secrets
+            echo "🔍 DEBUG: Checking variables from GitHub Secrets..."
             echo "DEBUG: POSTGRES_USER=${{ secrets.POSTGRES_USER }}"
             echo "DEBUG: POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}"
             echo "DEBUG: POSTGRES_DB=${{ secrets.POSTGRES_DB }}"
@@ -97,11 +97,11 @@ jobs:
           echo "🔍 Performing health checks..."
           sleep 10
 
-          # Проверяем GraphQL endpoint
+          # Check GraphQL endpoint
           echo "Testing GraphQL endpoint..."
           curl -s http://${{ secrets.SERVER_IP }}/graphql | head -1
 
-          # Проверяем main page
+          # Check main page
           echo "Testing main page..."
           curl -s http://${{ secrets.SERVER_IP }}/ | head -1
 

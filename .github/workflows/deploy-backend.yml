@@ -1,8 +1,8 @@
 name: Deploy Backend
 
 on:
-  workflow_dispatch: # Ручной запуск
-  repository_dispatch: # Событие от tserver репозитория
+  workflow_dispatch: # Manual trigger
+  repository_dispatch: # Event from tserver repository
     types: [deploy-backend]
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
       - name: Get backend image info
         id: image-info
         run: |
-          # Получаем информацию о новом образе из payload
+          # Get information about new image from payload
           BACKEND_IMAGE="${{ github.event.client_payload.backend_image }}"
           echo "backend_image=$BACKEND_IMAGE" >> $GITHUB_OUTPUT
           echo "🚀 Deploying backend image: $BACKEND_IMAGE"
@@ -29,36 +29,36 @@ jobs:
 
             cd /root/tattoo-app
 
-            # Принудительно останавливаем и удаляем backend контейнер
+            # Force stop and remove backend container
             echo "⏹️ Force stopping and removing backend container..."
             docker-compose -f docker-compose.prod.yml down backend
             docker rm -f tattoo-backend-prod || true
 
-            # Удаляем старый образ (принудительно)
+            # Remove old image (force)
             echo "🗑️ Force removing old backend image..."
             docker rmi -f mip92/tattoo-server:latest || true
 
-            # Очищаем неиспользуемые образы
+            # Clean up unused images
             echo "🧹 Cleaning up unused images..."
             docker image prune -f
 
-            # Запускаем backend с новым образом
+            # Start backend with new image
             echo "🔄 Starting backend with new image..."
             docker-compose -f docker-compose.prod.yml up -d backend
 
-            # Ждем инициализации
+            # Wait for initialization
             echo "⏳ Waiting for backend to initialize..."
             sleep 30
 
-            # Проверяем статус
+            # Check status
             echo "📊 Checking backend status..."
             docker ps | grep backend
 
-            # Проверяем, что используется новый образ
+            # Check that new image is being used
             echo "🔍 Checking image hash..."
             docker inspect mip92/tattoo-server:latest --format='{{.Id}}' || echo "New image not found"
 
-            # Проверяем health check
+            # Check health check
             echo "💚 Checking backend health..."
             docker-compose -f docker-compose.prod.yml ps | grep backend
 
@@ -69,7 +69,7 @@ jobs:
           echo "🔍 Testing backend health..."
           sleep 15
 
-          # Проверяем GraphQL endpoint
+          # Check GraphQL endpoint
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/graphql)
 
           if [ "$RESPONSE" = "400" ] || [ "$RESPONSE" = "200" ]; then

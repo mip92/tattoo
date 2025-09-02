@@ -46,7 +46,7 @@ services:
     networks:
       - tattoo-network
     ports:
-      - "3000:3000" # Порт для API
+      - "3000:3000" # API port
     command: npm run start:prod
     depends_on:
       postgres:
@@ -103,4 +103,4 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data: # Volume для PostgreSQL данных
+  postgres_data: # Volume for PostgreSQL data
