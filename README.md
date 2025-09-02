@@ -51,13 +51,13 @@ For full automation, you need to configure **THREE repositories**:
 
 - On merge to `main` → automatic Docker image build
 - Image is pushed to Docker Hub
-- **This repository** automatically detects updates and deploys frontend
+- **This repository** can be triggered to deploy frontend when new images are available
 
 ### 2. **Backend Updates** (`tserver` repository)
 
 - On merge to `main` → automatic Docker image build
 - Image is pushed to Docker Hub
-- **This repository** automatically detects updates and deploys backend
+- **This repository** can be triggered to deploy backend when new images are available
 
 ### 3. **Infrastructure Changes** (this repository)
 
@@ -83,8 +83,8 @@ tattoo-nginx/
 
 ### **On merge to main of any repository:**
 
-1. **Frontend merge** → automatic frontend deployment to server
-2. **Backend merge** → automatic backend deployment to server
+1. **Frontend merge** → manual trigger needed for frontend deployment
+2. **Backend merge** → manual trigger needed for backend deployment
 3. **Infrastructure merge** → full system redeployment
 
 ### **Manual triggers:**

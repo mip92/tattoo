@@ -18,12 +18,12 @@ mkdir -p .github/workflows/
 
 Go to `Settings → Secrets and variables → Actions → New repository secret`
 
-#### `DOCKER_USERNAME`
+#### `DOCKERHUB_USERNAME`
 
 - **Value**: `mip92`
 - **Description**: Your Docker Hub username
 
-#### `DOCKER_PASSWORD`
+#### `DOCKERHUB_TOKEN`
 
 - **Value**: Your Docker Hub access token
 - **Description**: Docker Hub access token (NOT password!)
@@ -42,12 +42,12 @@ mkdir -p .github/workflows/
 
 Go to `Settings → Secrets and variables → Actions → New repository secret`
 
-#### `DOCKER_USERNAME`
+#### `DOCKERHUB_USERNAME`
 
 - **Value**: `mip92`
 - **Description**: Your Docker Hub username
 
-#### `DOCKER_PASSWORD`
+#### `DOCKERHUB_TOKEN`
 
 - **Value**: Your Docker Hub access token
 - **Description**: Docker Hub access token (NOT password!)
@@ -67,7 +67,7 @@ Go to https://hub.docker.com/
 
 ### 3. Add token to GitHub Secrets
 
-- In each repository, add `DOCKER_PASSWORD` with this token
+- In each repository, add `DOCKERHUB_TOKEN` with this token
 
 ## 🔄 How automation works now
 
@@ -125,7 +125,7 @@ tserver/
 ### 3. **In this repository:**
 
 - Manually run "Deploy Frontend"/"Deploy Backend" workflows when new images are available
-- Check that new images are automatically deployed
+- Check that new images are deployed when workflows are triggered
 
 ## 🚨 Important notes
 
