@@ -1,0 +1,41 @@
+# Cursor AI Rules for Tattoo Project
+context_files:
+  - README.md
+  - GITHUB_SECRETS_SETUP.md
+  - REPOSITORIES_SETUP.md
+  - MIGRATION_GUIDE.md
+  - docker-compose.prod.yml
+  - .github/workflows/*.yml
+
+project_context:
+  description: "Docker-based tattoo application with automated deployment"
+  technologies:
+    - "GitHub Actions for CI/CD"
+    - "Docker Hub for image storage"
+    - "DigitalOcean server for hosting"
+    - "Prisma for database management"
+
+key_information:
+  server_ip: "164.92.133.111"
+  docker_images:
+    - "mip92/tattoo-client:latest"
+    - "mip92/tattoo-server:latest"
+  main_repository: "tattoo-nginx (infrastructure)"
+  related_repositories:
+    - "tclient (frontend)"
+    - "tserver (backend)"
+
+question_mapping:
+  deployment: "Include README.md and workflow files"
+  setup: "Include GITHUB_SECRETS_SETUP.md and REPOSITORIES_SETUP.md"
+  database: "Include MIGRATION_GUIDE.md"
+  configuration: "Include docker-compose.prod.yml"
+
+language_settings:
+  commit_language: "English"
+  commit_format: "conventional"
+  examples:
+    - "feat: add new feature"
+    - "fix: resolve bug"
+    - "docs: update documentation"
+  style: "concise and descriptive"

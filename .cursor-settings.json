@@ -1,0 +1,10 @@
+{
+  "ai": {
+    "language": "en",
+    "commitLanguage": "en",
+    "commitFormat": "conventional"
+  },
+  "git": {
+    "commitMessageLanguage": "en"
+  }
+}

@@ -1,0 +1,35 @@
+# Cursor AI Rules for Tattoo Project
+
+## Context Files
+Always include these files when answering questions about deployment, setup, or configuration:
+- README.md
+- GITHUB_SECRETS_SETUP.md
+- REPOSITORIES_SETUP.md
+- MIGRATION_GUIDE.md
+- docker-compose.prod.yml
+- .github/workflows/*.yml
+
+## Project Context
+This is a Docker-based tattoo application with automated deployment using:
+- GitHub Actions for CI/CD
+- Docker Hub for image storage
+- DigitalOcean server for hosting
+- Prisma for database management
+
+## Key Information
+- Server IP: 164.92.133.111
+- Docker images: "mip92/tattoo-client:latest, mip92/tattoo-server:latest"
+- Main repository: tattoo-nginx (infrastructure)
+- Related repositories: tclient (frontend), tserver (backend)
+
+## When answering questions about:
+- Deployment → Include README.md and workflow files
+- Setup → Include GITHUB_SECRETS_SETUP.md and REPOSITORIES_SETUP.md
+- Database → Include MIGRATION_GUIDE.md
+- Configuration → Include docker-compose.prod.yml
+
+## Language Settings
+- Always write commit messages in English
+- Use conventional commit format: "type(scope): description"
+- Examples: feat: add new feature, fix: resolve bug, docs: update documentation
+- Keep commit messages concise and descriptive

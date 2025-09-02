@@ -1,0 +1,36 @@
+---
+description: "Project context and key information for Tattoo application"
+globs:
+  - "**/*.md"
+  - "**/*.yml"
+  - "**/*.yaml"
+  - "docker-compose*.yml"
+alwaysApply: true
+---
+
+# Tattoo Project Context
+
+## Key Information
+
+- Server IP: 164.92.133.111
+- Docker images: mip92/tattoo-client:latest, mip92/tattoo-server:latest
+- Main repository: tattoo-nginx (infrastructure)
+- Related repositories: tclient (frontend), tserver (backend)
+
+## Technologies
+
+- GitHub Actions for CI/CD
+- Docker Hub for image storage
+- DigitalOcean server for hosting
+- Prisma for database management
+
+## Context Files
+
+Always include these files when answering questions about deployment, setup, or configuration:
+
+- README.md
+- GITHUB_SECRETS_SETUP.md
+- REPOSITORIES_SETUP.md
+- MIGRATION_GUIDE.md
+- docker-compose.prod.yml
+- .github/workflows/\*.yml

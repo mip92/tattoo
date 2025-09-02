@@ -1,0 +1,26 @@
+---
+description: "Commit message standards and language requirements"
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Commit Standards
+
+## Language Requirements
+
+- Always write commit messages in English
+- Use conventional commit format: type(scope): description
+
+## Examples
+
+- feat: add new feature
+- fix: resolve bug
+- docs: update documentation
+- chore: configure CI/CD pipeline
+
+## Style
+
+- Keep commit messages concise and descriptive
+- Use present tense ("add feature" not "added feature")
+- Capitalize the first letter of the description
