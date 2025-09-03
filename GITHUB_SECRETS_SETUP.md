@@ -27,6 +27,91 @@ Settings → Secrets and variables → Actions → New repository secret
 - **Value**: Content of your private SSH key
 - **Description**: Private SSH key for server connection
 
+#### `POSTGRES_USER`
+
+- **Value**: Your PostgreSQL username
+- **Description**: Database user for PostgreSQL connection
+
+#### `POSTGRES_PASSWORD`
+
+- **Value**: Your PostgreSQL password
+- **Description**: Database password for PostgreSQL connection
+
+#### `POSTGRES_DB`
+
+- **Value**: Your PostgreSQL database name
+- **Description**: Database name for the application
+
+#### `DATABASE_URL`
+
+- **Value**: `postgresql://username:password@postgres:5432/database_name`
+- **Description**: Full database connection URL
+
+#### `SERVER_PORT`
+
+- **Value**: `3000`
+- **Description**: Port for the backend server
+
+#### `JWT_SECRET`
+
+- **Value**: Your JWT secret key
+- **Description**: Secret key for JWT token generation
+
+#### `JWT_ACCESS_TOKEN_EXPIRES_IN`
+
+- **Value**: `15m`
+- **Description**: Access token expiration time
+
+#### `JWT_REFRESH_TOKEN_EXPIRES_IN`
+
+- **Value**: `7d`
+- **Description**: Refresh token expiration time
+
+#### `NEXT_PUBLIC_API_URL`
+
+- **Value**: `http://164.92.133.111/graphql`
+- **Description**: Public API URL for frontend
+
+#### `S3_ACCESS_KEY_ID`
+
+- **Value**: Your S3 access key ID
+- **Description**: S3 storage access key ID
+
+#### `S3_SECRET_ACCESS_KEY`
+
+- **Value**: Your S3 secret access key
+- **Description**: S3 storage secret access key
+
+#### `S3_BUCKET_NAME`
+
+- **Value**: Your S3 bucket name
+- **Description**: S3 bucket name for file storage
+
+#### `S3_ENDPOINT`
+
+- **Value**: Your S3 endpoint URL
+- **Description**: S3 service endpoint URL
+
+#### `S3_PUBLIC_DOMAIN`
+
+- **Value**: Your S3 public domain
+- **Description**: Public domain for accessing S3 files
+
+#### `DOCKERHUB_USERNAME`
+
+- **Value**: Your Docker Hub username
+- **Description**: Docker Hub username for image publishing
+
+#### `DOCKERHUB_TOKEN`
+
+- **Value**: Your Docker Hub access token
+- **Description**: Docker Hub access token for authentication
+
+#### `PAT_TOKEN`
+
+- **Value**: Your GitHub Personal Access Token
+- **Description**: GitHub token for repository dispatch events
+
 ## 🔑 How to get SSH key
 
 ### If you already have an SSH key:
