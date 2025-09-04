@@ -27,6 +27,13 @@ jobs:
       S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
       S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
       S3_PUBLIC_DOMAIN: ${{ secrets.S3_PUBLIC_DOMAIN }}
+      # CORS Configuration
+      ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
+      # Mail Configuration
+      MAIL_HOST: ${{ secrets.MAIL_HOST }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_LOGIN: ${{ secrets.MAIL_LOGIN }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
 
     steps:
       - name: Checkout code
@@ -70,6 +77,11 @@ jobs:
             echo "DEBUG: S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}"
             echo "DEBUG: S3_ENDPOINT=${{ secrets.S3_ENDPOINT }}"
             echo "DEBUG: S3_PUBLIC_DOMAIN=${{ secrets.S3_PUBLIC_DOMAIN }}"
+            echo "DEBUG: ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}"
+            echo "DEBUG: MAIL_HOST=${{ secrets.MAIL_HOST }}"
+            echo "DEBUG: MAIL_PORT=${{ secrets.MAIL_PORT }}"
+            echo "DEBUG: MAIL_LOGIN=${{ secrets.MAIL_LOGIN }}"
+            echo "DEBUG: MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}"
 
             echo "🔧 Creating .env file from GitHub Secrets..."
             cat > .env << 'EOF'
@@ -92,6 +104,13 @@ jobs:
             S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}
             S3_ENDPOINT=${{ secrets.S3_ENDPOINT }}
             S3_PUBLIC_DOMAIN=${{ secrets.S3_PUBLIC_DOMAIN }}
+            # CORS Configuration
+            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
+            # Mail Configuration
+            MAIL_HOST=${{ secrets.MAIL_HOST }}
+            MAIL_PORT=${{ secrets.MAIL_PORT }}
+            MAIL_LOGIN=${{ secrets.MAIL_LOGIN }}
+            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
             EOF
             echo "⏹️ Stopping all services..."
             docker-compose -f docker-compose.prod.yml down
