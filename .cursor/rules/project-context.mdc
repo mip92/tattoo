@@ -20,6 +20,7 @@ alwaysApply: true
 ## Technologies
 
 - GitHub Actions for CI/CD
+
 - Docker Hub for image storage
 - DigitalOcean server for hosting
 - Prisma for database management

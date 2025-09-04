@@ -112,6 +112,7 @@ ssh root@164.92.133.111 "docker exec tattoo-backend-prod npx prisma migrate stat
 ### Tables don't exist
 
 - **Problem:** `The table 'public.roles' does not exist`
+
 - **Solution:** First run `npx prisma db push` to synchronize schema
 
 ## Status After Execution
