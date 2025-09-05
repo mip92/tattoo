@@ -26,6 +26,9 @@ services:
     image: mip92/tattoo-server:latest
     container_name: tattoo-backend-prod
     restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     environment:
       NODE_ENV: production
       # Database Configuration
