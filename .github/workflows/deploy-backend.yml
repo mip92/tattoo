@@ -99,9 +99,31 @@ jobs:
             echo "🧹 Cleaning up unused images..."
             docker image prune -f
 
+            # Ensure postgres is running first
+            echo "🔍 Checking postgres status..."
+            docker-compose -f docker-compose.prod.yml up -d postgres
+            sleep 10
+
             # Start backend with new image
             echo "🔄 Starting backend with new image..."
             docker-compose -f docker-compose.prod.yml up -d backend
+
+            # Wait for backend to start
+            echo "⏳ Waiting for backend to start..."
+            sleep 15
+
+            # Check if backend started successfully
+            echo "🔍 Checking backend startup..."
+            if ! docker ps | grep -q tattoo-backend-prod; then
+                echo "❌ Backend failed to start, trying to restart..."
+                docker-compose -f docker-compose.prod.yml restart backend
+                sleep 15
+            fi
+
+            # Restart nginx to pick up any configuration changes
+            echo "🔄 Restarting nginx..."
+            docker-compose -f docker-compose.prod.yml restart nginx
+            sleep 5
 
             # Wait for initialization
             echo "⏳ Waiting for backend to initialize..."
@@ -119,17 +141,39 @@ jobs:
             echo "💚 Checking backend health..."
             docker-compose -f docker-compose.prod.yml ps | grep backend
 
+            # Check backend container status
+            echo "📊 Checking backend container status..."
+            docker ps -a | grep backend || echo "No backend container found"
+
             # Check backend logs for errors
             echo "📋 Checking backend logs for errors..."
-            docker logs tattoo-backend-prod --tail 50 || echo "Could not get logs"
+            docker logs tattoo-backend-prod --tail 100 || echo "Could not get logs"
+
+            # Check if backend container is running
+            echo "🔍 Checking if backend container is running..."
+            if docker ps | grep -q tattoo-backend-prod; then
+                echo "✅ Backend container is running"
+            else
+                echo "❌ Backend container is not running"
+                echo "📋 Container status:"
+                docker ps -a | grep backend
+            fi
+
+            # Check backend port binding
+            echo "🔍 Checking backend port binding..."
+            docker port tattoo-backend-prod || echo "No port binding found"
 
             # Wait a bit more for health check to pass
             echo "⏳ Waiting for health check to pass..."
-            sleep 15
+            sleep 20
 
             # Test backend endpoint directly
             echo "🔍 Testing backend endpoint directly..."
             curl -f http://localhost:3000/health || echo "Backend health endpoint not responding"
+
+            # Check if backend is responding on internal network
+            echo "🔍 Testing backend from nginx container..."
+            docker exec tattoo-nginx-prod curl -f http://backend:3000/health || echo "Backend not accessible from nginx"
 
             echo "✅ Backend deployment completed!"
 
