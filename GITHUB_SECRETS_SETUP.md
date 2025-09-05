@@ -97,6 +97,31 @@ Settings → Secrets and variables → Actions → New repository secret
 - **Value**: Your S3 public domain
 - **Description**: Public domain for accessing S3 files
 
+#### `ALLOWED_ORIGINS`
+
+- **Value**: Comma-separated list of allowed origins (e.g., `http://localhost:3000,https://yourdomain.com`)
+- **Description**: CORS configuration for allowed origins
+
+#### `MAIL_HOST`
+
+- **Value**: Your mail server host (e.g., `smtp.gmail.com`)
+- **Description**: SMTP server host for sending emails
+
+#### `MAIL_PORT`
+
+- **Value**: Your mail server port (e.g., `587` or `465`)
+- **Description**: SMTP server port for sending emails
+
+#### `MAIL_LOGIN`
+
+- **Value**: Your mail server username/email
+- **Description**: SMTP server authentication username
+
+#### `MAIL_PASSWORD`
+
+- **Value**: Your mail server password/app password
+- **Description**: SMTP server authentication password
+
 #### `DOCKERHUB_USERNAME`
 
 - **Value**: Your Docker Hub username
@@ -146,6 +171,7 @@ cat ~/.ssh/id_rsa
 After setting up secrets:
 
 1. **Go to Actions** in your repository
+
 2. **Select any workflow** (e.g., "Deploy Infrastructure")
 3. **Click "Run workflow"** → "Run workflow"
 4. **Check execution logs**

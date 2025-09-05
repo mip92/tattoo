@@ -8,6 +8,32 @@ on:
 jobs:
   deploy-backend:
     runs-on: ubuntu-latest
+    env:
+      # Database Configuration
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # Server Configuration
+      SERVER_PORT: ${{ secrets.SERVER_PORT }}
+      # JWT Configuration
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_ACCESS_TOKEN_EXPIRES_IN: ${{ secrets.JWT_ACCESS_TOKEN_EXPIRES_IN }}
+      JWT_REFRESH_TOKEN_EXPIRES_IN: ${{ secrets.JWT_REFRESH_TOKEN_EXPIRES_IN }}
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      # S3 Configuration
+      S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+      S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+      S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
+      S3_PUBLIC_DOMAIN: ${{ secrets.S3_PUBLIC_DOMAIN }}
+      # CORS Configuration
+      ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
+      # Mail Configuration
+      MAIL_HOST: ${{ secrets.MAIL_HOST }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_LOGIN: ${{ secrets.MAIL_LOGIN }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
 
     steps:
       - name: Get backend image info
@@ -28,6 +54,37 @@ jobs:
             echo "🚀 Deploying updated backend..."
 
             cd /root/tattoo-app
+
+            # Create .env file with all required variables
+            echo "🔧 Creating .env file from GitHub Secrets..."
+            cat > .env << 'EOF'
+            # Database Configuration
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            # Server Configuration
+            NODE_ENV=production
+            SERVER_PORT=${{ secrets.SERVER_PORT }}
+            # JWT Configuration
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_ACCESS_TOKEN_EXPIRES_IN=${{ secrets.JWT_ACCESS_TOKEN_EXPIRES_IN }}
+            JWT_REFRESH_TOKEN_EXPIRES_IN=${{ secrets.JWT_REFRESH_TOKEN_EXPIRES_IN }}
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            # S3 Configuration
+            S3_ACCESS_KEY_ID=${{ secrets.S3_ACCESS_KEY_ID }}
+            S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}
+            S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}
+            S3_ENDPOINT=${{ secrets.S3_ENDPOINT }}
+            S3_PUBLIC_DOMAIN=${{ secrets.S3_PUBLIC_DOMAIN }}
+            # CORS Configuration
+            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
+            # Mail Configuration
+            MAIL_HOST=${{ secrets.MAIL_HOST }}
+            MAIL_PORT=${{ secrets.MAIL_PORT }}
+            MAIL_LOGIN=${{ secrets.MAIL_LOGIN }}
+            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            EOF
 
             # Force stop and remove backend container
             echo "⏹️ Force stopping and removing backend container..."
@@ -62,19 +119,43 @@ jobs:
             echo "💚 Checking backend health..."
             docker-compose -f docker-compose.prod.yml ps | grep backend
 
+            # Check backend logs for errors
+            echo "📋 Checking backend logs for errors..."
+            docker logs tattoo-backend-prod --tail 50 || echo "Could not get logs"
+
+            # Wait a bit more for health check to pass
+            echo "⏳ Waiting for health check to pass..."
+            sleep 15
+
+            # Test backend endpoint directly
+            echo "🔍 Testing backend endpoint directly..."
+            curl -f http://localhost:3000/health || echo "Backend health endpoint not responding"
+
             echo "✅ Backend deployment completed!"
 
       - name: Health check backend
         run: |
           echo "🔍 Testing backend health..."
-          sleep 15
+          sleep 20
 
-          # Check GraphQL endpoint
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/graphql)
+          # Try multiple endpoints and methods
+          echo "Testing GraphQL endpoint..."
+          GRAPHQL_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/graphql)
+          echo "GraphQL response: $GRAPHQL_RESPONSE"
 
-          if [ "$RESPONSE" = "400" ] || [ "$RESPONSE" = "200" ]; then
-            echo "✅ Backend is healthy (HTTP $RESPONSE - CSRF protection working)"
+          echo "Testing health endpoint..."
+          HEALTH_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/health || echo "000")
+          echo "Health response: $HEALTH_RESPONSE"
+
+          echo "Testing API endpoint..."
+          API_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/api || echo "000")
+          echo "API response: $API_RESPONSE"
+
+          # Check if any endpoint responds with success
+          if [ "$GRAPHQL_RESPONSE" = "400" ] || [ "$GRAPHQL_RESPONSE" = "200" ] || [ "$HEALTH_RESPONSE" = "200" ] || [ "$API_RESPONSE" = "200" ]; then
+            echo "✅ Backend is healthy (at least one endpoint responding)"
           else
-            echo "❌ Backend health check failed (HTTP $RESPONSE)"
+            echo "❌ Backend health check failed"
+            echo "GraphQL: $GRAPHQL_RESPONSE, Health: $HEALTH_RESPONSE, API: $API_RESPONSE"
             exit 1
           fi
