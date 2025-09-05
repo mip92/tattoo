@@ -138,24 +138,49 @@ jobs:
           echo "🔍 Testing backend health..."
           sleep 20
 
-          # Try multiple endpoints and methods
-          echo "Testing GraphQL endpoint..."
-          GRAPHQL_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/graphql)
-          echo "GraphQL response: $GRAPHQL_RESPONSE"
-
+          # Test health endpoint first (most reliable)
           echo "Testing health endpoint..."
           HEALTH_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/health || echo "000")
           echo "Health response: $HEALTH_RESPONSE"
 
-          echo "Testing API endpoint..."
-          API_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/api || echo "000")
-          echo "API response: $API_RESPONSE"
+          # Test GraphQL endpoint with timeout
+          echo "Testing GraphQL endpoint..."
+          GRAPHQL_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://${{ secrets.SERVER_IP }}/graphql || echo "000")
+          echo "GraphQL response: $GRAPHQL_RESPONSE"
 
-          # Check if any endpoint responds with success
-          if [ "$GRAPHQL_RESPONSE" = "400" ] || [ "$GRAPHQL_RESPONSE" = "200" ] || [ "$HEALTH_RESPONSE" = "200" ] || [ "$API_RESPONSE" = "200" ]; then
-            echo "✅ Backend is healthy (at least one endpoint responding)"
+          # Test direct backend port (bypass nginx)
+          echo "Testing direct backend port..."
+          DIRECT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 http://${{ secrets.SERVER_IP }}:3000/health || echo "000")
+          echo "Direct backend response: $DIRECT_RESPONSE"
+
+          # Check nginx status
+          echo "Checking nginx status..."
+          NGINX_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.SERVER_IP }}/ || echo "000")
+          echo "Nginx main page response: $NGINX_RESPONSE"
+
+          # Proper health check logic
+          if [ "$HEALTH_RESPONSE" = "200" ]; then
+            echo "✅ Backend health endpoint is working"
+            
+            # Check if GraphQL is working (main functionality)
+            if [ "$GRAPHQL_RESPONSE" = "400" ] || [ "$GRAPHQL_RESPONSE" = "200" ]; then
+              echo "✅ GraphQL endpoint is working (HTTP $GRAPHQL_RESPONSE)"
+            elif [ "$GRAPHQL_RESPONSE" = "504" ]; then
+              echo "⚠️ GraphQL endpoint timeout (504) - possible nginx/proxy issue"
+            else
+              echo "❌ GraphQL endpoint not working (HTTP $GRAPHQL_RESPONSE)"
+            fi
+            
+            # Check direct backend access
+            if [ "$DIRECT_RESPONSE" = "200" ]; then
+              echo "✅ Direct backend access working"
+            else
+              echo "⚠️ Direct backend access not working (HTTP $DIRECT_RESPONSE)"
+            fi
+            
+            echo "✅ Backend deployment successful"
           else
             echo "❌ Backend health check failed"
-            echo "GraphQL: $GRAPHQL_RESPONSE, Health: $HEALTH_RESPONSE, API: $API_RESPONSE"
+            echo "Health: $HEALTH_RESPONSE, GraphQL: $GRAPHQL_RESPONSE, Direct: $DIRECT_RESPONSE, Nginx: $NGINX_RESPONSE"
             exit 1
           fi
