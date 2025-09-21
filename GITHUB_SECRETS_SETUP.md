@@ -122,6 +122,26 @@ Settings → Secrets and variables → Actions → New repository secret
 - **Value**: Your mail server password/app password
 - **Description**: SMTP server authentication password
 
+#### `KYIVSTAR_CLIENT_ID`
+
+- **Value**: Your Kyivstar API client ID
+- **Description**: Client ID for Kyivstar SMS API authentication
+
+#### `KYIVSTAR_CLIENT_SECRET`
+
+- **Value**: Your Kyivstar API client secret
+- **Description**: Client secret for Kyivstar SMS API authentication
+
+#### `KYIVSTAR_API_URL`
+
+- **Value**: Kyivstar API endpoint URL
+- **Description**: API URL for sending SMS messages
+
+#### `SMS_SENDER`
+
+- **Value**: SMS sender name/phone number
+- **Description**: Sender identifier for SMS messages
+
 #### `DOCKERHUB_USERNAME`
 
 - **Value**: Your Docker Hub username

@@ -34,6 +34,11 @@ jobs:
       MAIL_PORT: ${{ secrets.MAIL_PORT }}
       MAIL_LOGIN: ${{ secrets.MAIL_LOGIN }}
       MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      # SMS Configuration
+      KYIVSTAR_CLIENT_ID: ${{ secrets.KYIVSTAR_CLIENT_ID }}
+      KYIVSTAR_CLIENT_SECRET: ${{ secrets.KYIVSTAR_CLIENT_SECRET }}
+      KYIVSTAR_API_URL: ${{ secrets.KYIVSTAR_API_URL }}
+      SMS_SENDER: ${{ secrets.SMS_SENDER }}
 
     steps:
       - name: Checkout code
@@ -111,6 +116,11 @@ jobs:
             MAIL_PORT=${{ secrets.MAIL_PORT }}
             MAIL_LOGIN=${{ secrets.MAIL_LOGIN }}
             MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            # SMS Configuration
+            KYIVSTAR_CLIENT_ID=${{ secrets.KYIVSTAR_CLIENT_ID }}
+            KYIVSTAR_CLIENT_SECRET=${{ secrets.KYIVSTAR_CLIENT_SECRET }}
+            KYIVSTAR_API_URL=${{ secrets.KYIVSTAR_API_URL }}
+            SMS_SENDER=${{ secrets.SMS_SENDER }}
             EOF
             echo "⏹️ Stopping all services..."
             docker-compose -f docker-compose.prod.yml down
