@@ -94,6 +94,8 @@ services:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NODE_OPTIONS: "--max-old-space-size=128"
+    ports:
+      - "3001:3000" # Frontend port
     depends_on:
       backend:
         condition: service_healthy
